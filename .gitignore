@@ -1,0 +1,13 @@
+
+wg
+*.a
+*.o
+*.obj
+*.def
+*.lib
+*.xpl
+*.dll
+*.pdb
+*.exp
+archives/*
+build/*
