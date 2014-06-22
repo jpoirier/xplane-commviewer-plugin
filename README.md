@@ -1,4 +1,4 @@
-# CommViewer
+### CommViewer
 
 Draws a small, mouse clickable, text box in the upper left hand corner of the
 simulator screen. The output shows PTT (Push-To-Talk), Com1, and Com2 status.
@@ -9,7 +9,7 @@ listening to ATIS information without having to leave the primary com. Note,
 for aircraft with an audio panel that allows multiple com selection, the mouse
 click is ignored.
 
-# Example Output (where: 0=Unselected, 1=Selected):
+### Example Output (where: 0=Unselected, 1=Selected):
 
 ---------------------------------
 - PTT: OFF   COM1: 1   COM2: 0  -
@@ -24,7 +24,7 @@ click is ignored.
 ---------------------------------
 
 
-# Windows Build
+### Windows Build
 
 Plugin compiled using MSVC++ 2012 Express.
 
@@ -37,7 +37,7 @@ X-Plane 10/Resources/plugins folder.
 
 
 
-# TODO
+### TODO
 
 - automated xcode build
 - automated linux build
@@ -46,7 +46,7 @@ X-Plane 10/Resources/plugins folder.
 - floating window
 
 
-# MISC/NOTES
+### MISC/NOTES
 
 - xcode cli  Release|Debug
 - xcodebuild -project saitek.xcodeproj -alltargets -configuration Debug
