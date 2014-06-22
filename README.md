@@ -11,11 +11,11 @@ click is ignored.
 
 #### Example Output (where: 0=Unselected, 1=Selected):
 
-- PTT: OFF   COM1: 1   COM2: 0  -
+PTT: OFF   COM1: 1   COM2: 0
 
-- PTT: ON   COM1: 1   COM2: 0  -
+PTT: ON   COM1: 1   COM2: 0
 
-- PTT: OFF   COM1: 1   COM2: 1  -
+PTT: OFF   COM1: 1   COM2: 1
 
 
 #### Windows Build
