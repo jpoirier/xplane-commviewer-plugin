@@ -2,9 +2,15 @@
 // Distributable under the terms of The New BSD License
 // that can be found in the LICENSE file.
 
-#if defined(_WIN32) /* this is true for 64 bit as well */
+#ifdef _WIN32 /* this is true for 64 bit as well */
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
+#endif
+
+#ifdef _APPLE_
+#include <OpenGl/gl.h>
+#else
+#include <GL/gl.h>
 #endif
 
 #include <math.h>
@@ -57,7 +63,7 @@ static XPLMHotKeyID gHotKey = NULL;
 #define WINDOW_HEIGHT (80)
 static int gWinPosX;
 static int gWinPosY;
-static int gLastMouseX,
+static int gLastMouseX;
 static int gLastMouseY;
 
 // general & misc
@@ -111,12 +117,14 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
 
+#ifdef TOGGLE_TEST_FEATURE
     artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
     artificial_stability_pitch_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_pitch_on");
     artificial_stability_roll_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_roll_on");
     XPLMSetDatai(artificial_stability_on_dataref, 1);
     XPLMSetDatai(artificial_stability_pitch_on_dataref, 1);
     XPLMSetDatai(artificial_stability_roll_on_dataref, 1);
+#endif
 
     XPLMCommandRef cmd_ref;
     cmd_ref = XPLMCreateCommand(sCONTACT_ATC, "Contact ATC");
