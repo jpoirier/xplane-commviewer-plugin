@@ -38,11 +38,11 @@ static void HandleKeyCallback(XPLMWindowID inWindowID,
                               void* inRefcon,
                               int losingFocus);
 
-static int HandleMouseClickCallback(XPLMWindowID inWindowID,
-                                    int x,
-                                    int y,
-                                    XPLMMouseStatus inMouse,
-                                    void* inRefcon);
+static int HandleMouseCallback(XPLMWindowID inWindowID,
+                               int x,
+                               int y,
+                               XPLMMouseStatus inMouse,
+                               void* inRefcon);
 
 static void HotKeyCallback(void* inRefcon);
 
@@ -50,8 +50,15 @@ static XPLMWindowID gWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
-static unsigned long long gCounter = 0;
+static bool gPTT_On = false;
 static XPLMHotKeyID gHotKey = NULL;
+
+#define WINDOW_WIDTH (200)
+#define WINDOW_HEIGHT (80)
+static int gWinPosX;
+static int gWinPosY;
+static int gLastMouseX,
+static int gLastMouseY;
 
 // general & misc
 enum {
@@ -103,30 +110,33 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
-    
+
     artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
     artificial_stability_pitch_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_pitch_on");
     artificial_stability_roll_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_roll_on");
     XPLMSetDatai(artificial_stability_on_dataref, 1);
     XPLMSetDatai(artificial_stability_pitch_on_dataref, 1);
     XPLMSetDatai(artificial_stability_roll_on_dataref, 1);
-    
+
     XPLMCommandRef cmd_ref;
     cmd_ref = XPLMCreateCommand(sCONTACT_ATC, "Contact ATC");
     XPLMRegisterCommandHandler(cmd_ref, CommandHandler, CMD_HNDLR_EPILOG, (void*)CMD_CONTACT_ATC);
 
     // XPLMRegisterFlightLoopCallback(FlightLoopCallback, FL_CB_INTERVAL, NULL);
     panel_visible_win_t_dataref = XPLMFindDataRef("sim/graphics/view/panel_visible_win_t");
+
     int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
-    gWindow = XPLMCreateWindow(0,      // left     50
-                               top-200,     // top      300
-                               200,     // right    300
-                               top-200-50,     // bottom   200
-                               true,    // is visible
+    gWinPosX = 0;
+    gWinPosY = top - 200;
+    gWindow = XPLMCreateWindow(gWinPosX,                // left
+                               gWinPosY,                // top
+                               gWinPosX+WINDOW_WIDTH,   // right
+                               gWinPosY-WINDOW_HEIGHT,  // bottom
+                               true,                    // is visible
                                DrawWindowCallback,
                                HandleKeyCallback,
-                               HandleMouseClickCallback,
-                               NULL);   // Refcon
+                               HandleMouseCallback,
+                               NULL);                   // Refcon
 
 #ifdef TOGGLE_TEST_FEATURE
     visibility_reported_m_dataref = XPLMFindDataRef("sim/weather/visibility_reported_m");
@@ -168,7 +178,7 @@ void HotKeyCallback(void* inRefcon) {
         isSaved = true;
         visibility_reported = XPLMGetDataf(visibility_reported_m_dataref);
         XPLMSetDataf(visibility_reported_m_dataref, 0.0);
-        
+
         cloud_coverage_1 = XPLMGetDataf(cloud_coverage_1_dataref);
         cloud_coverage_2 = XPLMGetDataf(cloud_coverage_2_dataref);
         cloud_coverage_3 = XPLMGetDataf(cloud_coverage_3_dataref);
@@ -217,11 +227,11 @@ int CommandHandler(XPLMCommandRef inCommand,
         switch (inPhase) {
         case xplm_CommandBegin:
         case xplm_CommandContinue:
-            gCounter += 1;
+            gPTT_On = true;
             break;
         case xplm_CommandEnd:
         default:
-            gCounter = 0;
+            gPTT_On = false;
             break;
         }
         break;
@@ -323,7 +333,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     // put the text into the window, NULL indicates no word wrap
 #if 1
     sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-        (char*)(gCounter ? "PTT: ON" : "PTT: OFF"),
+        (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
         XPLMGetDatai(audio_selection_com1_dataref),
         XPLMGetDatai(audio_selection_com2_dataref));
 
@@ -336,6 +346,15 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                     NULL,
                     xplmFont_Basic);
 #endif
+    glDisable(GL_TEXTURE_2D);
+    glColor3f(0.7, 0.7, 0.7);
+    glBegin(GL_LINES);
+        glVertex2i(right-1, top-1);
+        glVertex2i(right-7, top-7);
+        glVertex2i(right-7, top-1);
+        glVertex2i(right-1, top-7);
+    glEnd();
+    glEnable(GL_TEXTURE_2D);
 }
 
 /*
@@ -356,39 +375,67 @@ void HandleKeyCallback(XPLMWindowID inWindowID,
  *
  *
  */
-int HandleMouseClickCallback(XPLMWindowID inWindowID,
-                               int x,
-                               int y,
-                               XPLMMouseStatus inMouse,
-                               void* inRefcon) {
+int HandleMouseCallback(XPLMWindowID inWindowID,
+                        int x,
+                        int y,
+                        XPLMMouseStatus inMouse,
+                        void* inRefcon) {
 
     static int com_changed = 0;
+    static bool isDragging = false;
 
-    //if ((inMouse == xplm_MouseDown) || (inMouse == xplm_MouseUp)) {
-    if (inMouse == xplm_MouseUp) {
-        int com1 = XPLMGetDatai(audio_selection_com1_dataref);
-        int com2 = XPLMGetDatai(audio_selection_com2_dataref);
+    switch (inMouse) {
+    case xplm_MouseDown:
+        // if ((x >= gWinPosX+WINDOW_WIDTH-8) &&
+        //     (x <= gWinPosX+WINDOW_WIDTH) &&
+        //     (y <= gWinPosY) && (y >= gWinPosY-8)) {
+        //         windowCloseRequest = 1;
+        //     } else {
+                gLastMouseX = x;
+                gLastMouseY = y;
+        // }
+        break;
+    case xplm_MouseDrag:
+        isDragging = true;
+        gWinPosX += x - gLastMouseX;
+        gWinPosY += y - gLastMouseY;
+        XPLMSetWindowGeometry(gWindow,
+                              gWinPosX,
+                              gWinPosY,
+                              gWinPosX+WINDOW_WIDTH,
+                              gWinPosY-WINDOW_HEIGHT);
+        gLastMouseX = x;
+        gLastMouseY = y;
+        break;
+    case xplm_MouseUp:
+        if (isDragging) {
+            isDragging = false;
+        } else {
+            int com1 = XPLMGetDatai(audio_selection_com1_dataref);
+            int com2 = XPLMGetDatai(audio_selection_com2_dataref);
 
-        if (com1 && com2 && com_changed) {
-            switch (com_changed) {
-            case 1:
-                XPLMSetDatai(audio_selection_com1_dataref, 0);
-                break;
-            case 2:
-                XPLMSetDatai(audio_selection_com2_dataref, 0);
-                break;
-            default:
-                break;
+            if (com1 && com2 && com_changed) {
+                switch (com_changed) {
+                case 1:
+                    XPLMSetDatai(audio_selection_com1_dataref, 0);
+                    break;
+                case 2:
+                    XPLMSetDatai(audio_selection_com2_dataref, 0);
+                    break;
+                default:
+                    break;
+                }
+                com_changed = 0;
+            } else if (!com1 && com2) {
+                com_changed = 1;
+                XPLMSetDatai(audio_selection_com1_dataref, 1);
+            }  else if (com1 && !com2) {
+                com_changed = 2;
+                XPLMSetDatai(audio_selection_com2_dataref, 1);
             }
-            com_changed = 0;
-        } else if (!com1 && com2) {
-            com_changed = 1;
-            XPLMSetDatai(audio_selection_com1_dataref, 1);
-        }  else if (com1 && !com2) {
-            com_changed = 2;
-            XPLMSetDatai(audio_selection_com2_dataref, 1);
         }
-    }
+        break;
+    } // switch (inMouse)
 
     return PROCESSED_EVENT;
 }
