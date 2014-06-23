@@ -48,6 +48,7 @@ static XPLMWindowID gWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
+static unsigned long long gCounter = 0;
 
 // general & misc
 enum {
@@ -247,7 +248,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
 
     //int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
     //XPLMDrawTranslucentDarkBox(0, top-200, 300, top-200-50);
-    
+
     // location of the window and draw the window
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
@@ -329,6 +330,6 @@ int HandleMouseClickCallback(XPLMWindowID inWindowID,
             XPLMSetDatai(audio_selection_com2_dataref, 1);
         }
     }
-    
+
     return PROCESSED_EVENT;
 }
