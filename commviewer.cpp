@@ -49,6 +49,7 @@ static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
 static unsigned long long gCounter = 0;
+static XPLMHotKeyID gHotKey = NULL;
 
 // general & misc
 enum {
@@ -62,6 +63,12 @@ enum {
 XPLMDataRef avionics_power_on_dataref;
 XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
+
+#ifdef TOGGLE_IFR_FEATURE
+XPLMDataRef cloud_coverage_1_dataref;
+XPLMDataRef cloud_coverage_2_dataref;
+XPLMDataRef cloud_coverage_3_dataref;
+#endif
 
 XPLMDataRef panel_visible_win_t_dataref;
 
@@ -107,10 +114,50 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                                HandleMouseClickCallback,
                                NULL);   // Refcon
 
+#ifdef TOGGLE_IFR_FEATURE
+    cloud_coverage_1_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[0]");
+    cloud_coverage_2_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[1]");
+    cloud_coverage_3_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[2]");
+    gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
+                                 xplm_DownFlag,
+                                 "Toggle IFR COnditions'",
+                                 HotKeyCallback,
+                                 NULL);
+#endif
+
     LPRINTF("CommView Plugin: startup completed\n");
 
     return PROCESSED_EVENT;
 }
+
+#ifdef TOGGLE_IFR_FEATURE
+/*
+ *
+ *
+ */
+void HotKeyCallback(void* inRefcon) {
+    static bool isSaved = false;
+    static float cloud_coverage_1 = 0.0;
+    static float cloud_coverage_2 = 0.0;
+    static float cloud_coverage_3 = 0.0;
+
+    if (isSaved) {
+        isSaved = false;
+        XPLMSetDataf(cloud_coverage_1_dataref, cloud_coverage_1);
+        XPLMSetDataf(cloud_coverage_2_dataref, cloud_coverage_2);
+        XPLMSetDataf(cloud_coverage_3_dataref, cloud_coverage_3);
+        cloud_coverage_1 = cloud_coverage_2 = cloud_coverage_3 = 0.0;
+    } else {
+        isSaved = true;
+        cloud_coverage_1 = XPLMGetDataf(cloud_coverage_1_dataref);
+        cloud_coverage_2 = XPLMGetDataf(cloud_coverage_2_dataref);
+        cloud_coverage_3 = XPLMGetDataf(cloud_coverage_3_dataref);
+        XPLMSetDataf(cloud_coverage_1_dataref, 6.0);
+        XPLMSetDataf(cloud_coverage_2_dataref, 6.0);
+        XPLMSetDataf(cloud_coverage_3_dataref, 6.0);
+    }
+}
+#endif
 
 /*
  *
