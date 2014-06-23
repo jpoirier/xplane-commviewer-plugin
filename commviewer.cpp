@@ -66,7 +66,12 @@ XPLMDataRef avionics_power_on_dataref;
 XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
 
-#ifdef TOGGLE_IFR_FEATURE
+XPLMDataRef artificial_stability_on_dataref;
+XPLMDataRef artificial_stability_pitch_on_dataref;
+XPLMDataRef artificial_stability_roll_on_dataref;
+
+#ifdef TOGGLE_TEST_FEATURE
+XPLMDataRef visibility_reported_m_dataref;
 XPLMDataRef cloud_coverage_1_dataref;
 XPLMDataRef cloud_coverage_2_dataref;
 XPLMDataRef cloud_coverage_3_dataref;
@@ -98,7 +103,14 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
-
+    
+    artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
+    artificial_stability_pitch_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_pitch_on");
+    artificial_stability_roll_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_roll_on");
+    XPLMSetDatai(artificial_stability_on_dataref, 1);
+    XPLMSetDatai(artificial_stability_pitch_on_dataref, 1);
+    XPLMSetDatai(artificial_stability_roll_on_dataref, 1);
+    
     XPLMCommandRef cmd_ref;
     cmd_ref = XPLMCreateCommand(sCONTACT_ATC, "Contact ATC");
     XPLMRegisterCommandHandler(cmd_ref, CommandHandler, CMD_HNDLR_EPILOG, (void*)CMD_CONTACT_ATC);
@@ -116,7 +128,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                                HandleMouseClickCallback,
                                NULL);   // Refcon
 
-#ifdef TOGGLE_IFR_FEATURE
+#ifdef TOGGLE_TEST_FEATURE
+    visibility_reported_m_dataref = XPLMFindDataRef("sim/weather/visibility_reported_m");
     cloud_coverage_1_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[0]");
     cloud_coverage_2_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[1]");
     cloud_coverage_3_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[2]");
@@ -132,25 +145,30 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     return PROCESSED_EVENT;
 }
 
-#ifdef TOGGLE_IFR_FEATURE
+#ifdef TOGGLE_TEST_FEATURE
 /*
  *
  *
  */
 void HotKeyCallback(void* inRefcon) {
     static bool isSaved = false;
+    static float visibility_reported = 0.0;
     static float cloud_coverage_1 = 0.0;
     static float cloud_coverage_2 = 0.0;
     static float cloud_coverage_3 = 0.0;
 
     if (isSaved) {
         isSaved = false;
+        XPLMSetDataf(visibility_reported_m_dataref, visibility_reported);
         XPLMSetDataf(cloud_coverage_1_dataref, cloud_coverage_1);
         XPLMSetDataf(cloud_coverage_2_dataref, cloud_coverage_2);
         XPLMSetDataf(cloud_coverage_3_dataref, cloud_coverage_3);
-        cloud_coverage_1 = cloud_coverage_2 = cloud_coverage_3 = 0.0;
+        visibility_reported = cloud_coverage_1 = cloud_coverage_2 = cloud_coverage_3 = 0.0;
     } else {
         isSaved = true;
+        visibility_reported = XPLMGetDataf(visibility_reported_m_dataref);
+        XPLMSetDataf(visibility_reported_m_dataref, 0.0);
+        
         cloud_coverage_1 = XPLMGetDataf(cloud_coverage_1_dataref);
         cloud_coverage_2 = XPLMGetDataf(cloud_coverage_2_dataref);
         cloud_coverage_3 = XPLMGetDataf(cloud_coverage_3_dataref);
