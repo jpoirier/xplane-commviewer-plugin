@@ -40,3 +40,8 @@ X-Plane 10/Resources/plugins folder.
 #### MISC/NOTES
 - xcode cli  Release|Debug
 - xcodebuild -project saitek.xcodeproj -alltargets -configuration Debug
+
+
+#### VERSIONS
+1.1 Floating window
+1.0 Initial working build

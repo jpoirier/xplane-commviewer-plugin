@@ -238,8 +238,9 @@ int CommandHandler(XPLMCommandRef inCommand,
             gPTT_On = true;
             break;
         case xplm_CommandEnd:
-        default:
             gPTT_On = false;
+            break;
+        default:
             break;
         }
         break;
@@ -329,7 +330,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     int right;
     int bottom;
     static char str[100];
-    static float color[] = { 1.0, 1.0, 1.0 };    // RGB White
+    static float color[] = {1.0, 1.0, 1.0};  // RGB White
 
     //int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
     //XPLMDrawTranslucentDarkBox(0, top-200, 300, top-200-50);
@@ -383,14 +384,18 @@ void HandleKeyCallback(XPLMWindowID inWindowID,
  *
  *
  */
+ #define COMS_UNCHANGED (0)
+ #define COM1_CHANGED   (1)
+ #define COM2_CHANGED   (2)
 int HandleMouseCallback(XPLMWindowID inWindowID,
                         int x,
                         int y,
                         XPLMMouseStatus inMouse,
                         void* inRefcon) {
 
-    static int com_changed = 0;
-    static bool isDragging = false;
+    static int com_changed = COMS_UNCHANGED;
+    static int MouseDownX;
+    static int MouseDownY;
 
     switch (inMouse) {
     case xplm_MouseDown:
@@ -399,12 +404,13 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
         //     (y <= gWinPosY) && (y >= gWinPosY-8)) {
         //         windowCloseRequest = 1;
         //     } else {
-                gLastMouseX = x;
-                gLastMouseY = y;
+                MouseDownX = gLastMouseX = x;
+                MouseDownY = gLastMouseY = y;
         // }
         break;
     case xplm_MouseDrag:
-        isDragging = true;
+        // this event fires while xplm_MouseDown
+        // and whether the window is being dragged or not
         gWinPosX += x - gLastMouseX;
         gWinPosY += y - gLastMouseY;
         XPLMSetWindowGeometry(gWindow,
@@ -416,29 +422,27 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
         gLastMouseY = y;
         break;
     case xplm_MouseUp:
-        if (isDragging) {
-            isDragging = false;
-        } else {
+        if (MouseDownX == x && MouseDownY == y) {
             int com1 = XPLMGetDatai(audio_selection_com1_dataref);
             int com2 = XPLMGetDatai(audio_selection_com2_dataref);
 
             if (com1 && com2 && com_changed) {
                 switch (com_changed) {
-                case 1:
+                case COM1_CHANGED:
                     XPLMSetDatai(audio_selection_com1_dataref, 0);
                     break;
-                case 2:
+                case COM2_CHANGED:
                     XPLMSetDatai(audio_selection_com2_dataref, 0);
                     break;
                 default:
                     break;
                 }
-                com_changed = 0;
+                com_changed = COMS_UNCHANGED;
             } else if (!com1 && com2) {
-                com_changed = 1;
+                com_changed = COM1_CHANGED;
                 XPLMSetDatai(audio_selection_com1_dataref, 1);
             }  else if (com1 && !com2) {
-                com_changed = 2;
+                com_changed = COM2_CHANGED;
                 XPLMSetDatai(audio_selection_com2_dataref, 1);
             }
         }
