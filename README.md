@@ -3,8 +3,8 @@ Draws a small, mouse clickable, text box in the upper left hand corner of the
 simulator screen. The output shows PTT (Push-To-Talk), Com1, and Com2 status.
 
 When the output box is clicked on, the plugin will select an unselected Com
-and unselect and previously selected com. Typically, this is useful for
-listening to ATIS information without having to leave the primary com. Note,
+or unselect a Com previously selected via mouse click. Typically, this is useful
+for listening to ATIS information without having to leave the primary com. Note,
 for aircraft with an audio panel that allows multiple com selection, the mouse
 click is ignored.
 
