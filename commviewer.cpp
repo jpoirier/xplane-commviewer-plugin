@@ -60,7 +60,7 @@ static bool gPTT_On = false;
 static XPLMHotKeyID gHotKey = NULL;
 
 #define WINDOW_WIDTH (200)
-#define WINDOW_HEIGHT (80)
+#define WINDOW_HEIGHT (40)
 static int gWinPosX;
 static int gWinPosY;
 static int gLastMouseX;
@@ -354,15 +354,15 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                     NULL,
                     xplmFont_Basic);
 #endif
-    glDisable(GL_TEXTURE_2D);
-    glColor3f(0.7, 0.7, 0.7);
-    glBegin(GL_LINES);
-        glVertex2i(right-1, top-1);
-        glVertex2i(right-7, top-7);
-        glVertex2i(right-7, top-1);
-        glVertex2i(right-1, top-7);
-    glEnd();
-    glEnable(GL_TEXTURE_2D);
+    //glDisable(GL_TEXTURE_2D);
+    //glColor3f(0.7, 0.7, 0.7);
+    //glBegin(GL_LINES);
+    //    glVertex2i(right-1, top-1);
+    //    glVertex2i(right-7, top-7);
+    //    glVertex2i(right-7, top-1);
+    //    glVertex2i(right-1, top-7);
+    //glEnd();
+    //glEnable(GL_TEXTURE_2D);
 }
 
 /*
