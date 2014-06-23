@@ -124,7 +124,7 @@ float FlightLoopCallback(float inElapsedSinceLastCall,
 //   if ((gFlCbCnt % PANEL_CHECK_INTERVAL) == 0) {
 //   }
 
-    if (gPluginEnabled) {
+    if (!gPluginEnabled) {
 
     }
 
@@ -253,22 +253,14 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-
-
     // put the text into the window, NULL indicates no word wrap
 #if 1
-    /*sprintf(str,"%s\t\t\t%s\t\t%s\n%s\t\t",
-		"COMM", "RX", "TX",
-        "1", "2",
-        (char*)(gCounter ? "PTT: ON" : "PTT: OFF"),*/
-
     sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
         (char*)(gCounter ? "PTT: ON" : "PTT: OFF"),
         XPLMGetDatai(audio_selection_com1_dataref),
         XPLMGetDatai(audio_selection_com2_dataref));
 
     XPLMDrawString(color, left+5, top-20, str, NULL, xplmFont_Basic);
-    //XPLMDrawString(color, 5, top-220, str, NULL, xplmFont_Basic);
 #else
      XPLMDrawString(color,
                     left+5,
