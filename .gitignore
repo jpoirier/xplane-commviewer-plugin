@@ -4,9 +4,7 @@ wg
 *.o
 *.obj
 *.def
-*.lib
 *.xpl
-*.dll
 *.pdb
 *.exp
 archives/*
