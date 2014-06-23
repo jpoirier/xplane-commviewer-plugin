@@ -21,7 +21,7 @@ PTT: OFF   COM1: 1   COM2: 1
 #### Windows Build
 Plugin compiled using MSVC++ 2012 Express.
 
-Open an MSVC++ tool shell specific to the desired target (32/64 bit) an "cd"
+Open an MSVC++ tool shell specific to the desired target (32/64 bit) and "cd"
 to the directory containing the plugin code. Change XPLM_64.lib or XPLM.lib,
 32-bit and 64-bit respectively, on the "set LINK_LIBS" in make.msvc.bat.
 
