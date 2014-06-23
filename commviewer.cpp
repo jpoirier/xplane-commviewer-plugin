@@ -44,6 +44,8 @@ static int HandleMouseClickCallback(XPLMWindowID inWindowID,
                                     XPLMMouseStatus inMouse,
                                     void* inRefcon);
 
+static void HotKeyCallback(void* inRefcon);
+
 static XPLMWindowID gWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;

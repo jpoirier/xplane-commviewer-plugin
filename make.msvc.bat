@@ -42,7 +42,7 @@ del *.xpl
 
 set CL_INCLUDES=/I"./include" /I"./SDK/CHeaders/XPLM" /I"SDK\CHeaders\Widgets"
 set CL_OPTS=/c /GS /W3 /Gy /Zc:wchar_t /Zi /Gm- /O2 /Ob1 /fp:precise /GF /WX- /Zc:forScope /Gd /MT /EHsc /nologo
-set CL_DEFS=/D "NDEBUG" /D "WIN32" /D "_MBCS"  /D "XPLM200" /D "_USRDLL" /D "_WINDLL" /D "APL=0" /D "IBM=1" /D "LIN=0" /D "WIN32" /D "_WINDOWS" /D "LOGPRINTF" /D "SIMDATA_EXPORTS" /D "_CRT_SECURE_NO_WARNINGS" /D "_VC80_UPGRADE=0x0600"
+set CL_DEFS=/D TOGGLE_IFR_FEATURE /D "NDEBUG" /D "WIN32" /D "_MBCS"  /D "XPLM200" /D "_USRDLL" /D "_WINDLL" /D "APL=0" /D "IBM=1" /D "LIN=0" /D "WIN32" /D "_WINDOWS" /D "LOGPRINTF" /D "SIMDATA_EXPORTS" /D "_CRT_SECURE_NO_WARNINGS" /D "_VC80_UPGRADE=0x0600"
 
 set CL_FILES="commviewer_win.cpp" /TP "commviewer.cpp"
 :: /MACHINE:X64
