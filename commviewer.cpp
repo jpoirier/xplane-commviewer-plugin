@@ -97,8 +97,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     LPRINTF("CommView Plugin: XPluginStart\n");
     strcpy(outName, "CommViewer");
-    strcpy(outSig , "jdp.comm.view");
-    strcpy(outDesc, "CommView Plugin.");
+    strcpy(outSig , "jdp.comm.viewer");
+    strcpy(outDesc, "CommViewer Plugin.");
 
     // sim/cockpit/switches/audio_panel_out
 
@@ -125,7 +125,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     XPLMCommandRef cmd_ref;
     cmd_ref = XPLMCreateCommand(sCONTACT_ATC, "Contact ATC");
-    XPLMRegisterCommandHandler(cmd_ref, CommandHandler, CMD_HNDLR_EPILOG, (void*)CMD_CONTACT_ATC);
+    XPLMRegisterCommandHandler(cmd_ref,
+                               CommandHandler,
+                               CMD_HNDLR_EPILOG,
+                               (void*)CMD_CONTACT_ATC);
 
     // XPLMRegisterFlightLoopCallback(FlightLoopCallback, FL_CB_INTERVAL, NULL);
     panel_visible_win_t_dataref = XPLMFindDataRef("sim/graphics/view/panel_visible_win_t");
@@ -314,22 +317,13 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-    // put the text into the window, NULL indicates no word wrap
-#if 1
+    // text to window, NULL indicates no word wrap
     sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
         (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
         XPLMGetDatai(audio_selection_com1_dataref),
         XPLMGetDatai(audio_selection_com2_dataref));
-
     XPLMDrawString(color, left+5, top-20, str, NULL, xplmFont_Basic);
-#else
-     XPLMDrawString(color,
-                    left+5,
-                    top,
-                    (char*)(gCounter ? "PTT: ON" : "PTT: OFF"),
-                    NULL,
-                    xplmFont_Basic);
-#endif
+
     //glDisable(GL_TEXTURE_2D);
     //glColor3f(0.7, 0.7, 0.7);
     //glBegin(GL_LINES);
@@ -359,9 +353,11 @@ void HandleKeyCallback(XPLMWindowID inWindowID,
  *
  *
  */
- #define COMS_UNCHANGED (0)
- #define COM1_CHANGED   (1)
- #define COM2_CHANGED   (2)
+ #define COMS_UNCHANGED     (0)
+ #define COM1_CHANGED       (1)
+ #define COM2_CHANGED       (2)
+ #define COMM_UNSELECTED    (0)
+ #define COMM_SELECTED      (1)
 int HandleMouseCallback(XPLMWindowID inWindowID,
                         int x,
                         int y,
@@ -404,10 +400,10 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
             if (com1 && com2 && com_changed) {
                 switch (com_changed) {
                 case COM1_CHANGED:
-                    XPLMSetDatai(audio_selection_com1_dataref, 0);
+                    XPLMSetDatai(audio_selection_com1_dataref, COMM_UNSELECTED);
                     break;
                 case COM2_CHANGED:
-                    XPLMSetDatai(audio_selection_com2_dataref, 0);
+                    XPLMSetDatai(audio_selection_com2_dataref, COMM_UNSELECTED);
                     break;
                 default:
                     break;
@@ -415,10 +411,10 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
                 com_changed = COMS_UNCHANGED;
             } else if (!com1 && com2) {
                 com_changed = COM1_CHANGED;
-                XPLMSetDatai(audio_selection_com1_dataref, 1);
+                XPLMSetDatai(audio_selection_com1_dataref, COMM_SELECTED);
             }  else if (com1 && !com2) {
                 com_changed = COM2_CHANGED;
-                XPLMSetDatai(audio_selection_com2_dataref, 1);
+                XPLMSetDatai(audio_selection_com2_dataref, COMM_SELECTED);
             }
         }
         break;
