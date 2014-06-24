@@ -2,7 +2,7 @@
 // Distributable under the terms of The New BSD License
 // that can be found in the LICENSE file.
 
-#ifdef _WIN32 /* this is true for 64 bit as well */
+#ifdef _WIN32 /* this is set for 64 bit as well */
 # define WIN32_LEAN_AND_MEAN
 # include <windows.h>
 #endif
@@ -386,8 +386,8 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
     case xplm_MouseDrag:
         // this event fires while xplm_MouseDown
         // and whether the window is being dragged or not
-        gWinPosX += x - gLastMouseX;
-        gWinPosY += y - gLastMouseY;
+        gWinPosX += (x - gLastMouseX);
+        gWinPosY += (y - gLastMouseY);
         XPLMSetWindowGeometry(gWindow,
                               gWinPosX,
                               gWinPosY,
