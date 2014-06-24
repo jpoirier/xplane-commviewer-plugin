@@ -79,15 +79,12 @@ XPLMDataRef avionics_power_on_dataref;
 XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
 
+#ifdef TOGGLE_TEST_FEATURE
+XPLMDataRef window_ice_dataref;
+
 XPLMDataRef artificial_stability_on_dataref;
 XPLMDataRef artificial_stability_pitch_on_dataref;
 XPLMDataRef artificial_stability_roll_on_dataref;
-
-#ifdef TOGGLE_TEST_FEATURE
-XPLMDataRef visibility_reported_m_dataref;
-XPLMDataRef cloud_coverage_1_dataref;
-XPLMDataRef cloud_coverage_2_dataref;
-XPLMDataRef cloud_coverage_3_dataref;
 #endif
 
 XPLMDataRef panel_visible_win_t_dataref;
@@ -99,7 +96,7 @@ XPLMDataRef panel_visible_win_t_dataref;
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     LPRINTF("CommView Plugin: XPluginStart\n");
-    strcpy(outName, "CommView");
+    strcpy(outName, "CommViewer");
     strcpy(outSig , "jdp.comm.view");
     strcpy(outDesc, "CommView Plugin.");
 
@@ -147,15 +144,11 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                                NULL);                   // Refcon
 
 #ifdef TOGGLE_TEST_FEATURE
-    visibility_reported_m_dataref = XPLMFindDataRef("sim/weather/visibility_reported_m");
-    cloud_coverage_1_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[0]");
-    cloud_coverage_2_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[1]");
-    cloud_coverage_3_dataref = XPLMFindDataRef("sim/weather/cloud_coverage[2]");
-    gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
-                                 xplm_DownFlag,
-                                 "Toggle IFR COnditions'",
-                                 HotKeyCallback,
-                                 NULL);
+    //gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
+    //                             xplm_DownFlag,
+    //                             "Toggle Window Ice",
+    //                             HotKeyCallback,
+    //                             NULL);
 #endif
 
     LPRINTF("CommView Plugin: startup completed\n");
@@ -170,29 +163,11 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
  */
 void HotKeyCallback(void* inRefcon) {
     static bool isSaved = false;
-    static float visibility_reported = 0.0;
-    static float cloud_coverage_1 = 0.0;
-    static float cloud_coverage_2 = 0.0;
-    static float cloud_coverage_3 = 0.0;
 
     if (isSaved) {
         isSaved = false;
-        XPLMSetDataf(visibility_reported_m_dataref, visibility_reported);
-        XPLMSetDataf(cloud_coverage_1_dataref, cloud_coverage_1);
-        XPLMSetDataf(cloud_coverage_2_dataref, cloud_coverage_2);
-        XPLMSetDataf(cloud_coverage_3_dataref, cloud_coverage_3);
-        visibility_reported = cloud_coverage_1 = cloud_coverage_2 = cloud_coverage_3 = 0.0;
     } else {
         isSaved = true;
-        visibility_reported = XPLMGetDataf(visibility_reported_m_dataref);
-        XPLMSetDataf(visibility_reported_m_dataref, 0.0);
-
-        cloud_coverage_1 = XPLMGetDataf(cloud_coverage_1_dataref);
-        cloud_coverage_2 = XPLMGetDataf(cloud_coverage_2_dataref);
-        cloud_coverage_3 = XPLMGetDataf(cloud_coverage_3_dataref);
-        XPLMSetDataf(cloud_coverage_1_dataref, 6.0);
-        XPLMSetDataf(cloud_coverage_2_dataref, 6.0);
-        XPLMSetDataf(cloud_coverage_3_dataref, 6.0);
     }
 }
 #endif

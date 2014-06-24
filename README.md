@@ -42,5 +42,6 @@ X-Plane 10/Resources/plugins folder.
 - xcodebuild -project saitek.xcodeproj -alltargets -configuration Debug
 
 #### VERSIONS
+- 1.2 Uses the latest SDK, standard plugin folder
 - 1.1 Floating window
 - 1.0 Initial working build
