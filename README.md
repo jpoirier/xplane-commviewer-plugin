@@ -1,12 +1,16 @@
 #### CommViewer
-Draws a small, mouse clickable, text box in the upper left hand corner of the
-simulator screen. The output shows PTT (Push-To-Talk), Com1, and Com2 status.
+Draws a small, mouse moveable/clickable, text box in the upper left hand corner
+of the simulator screen. The output shows PTT (Push-To-Talk), Com1, and Com2 status.
 
 When the output box is clicked on, the plugin will select an unselected Com
 or unselect a Com previously selected via mouse click. Typically, this is useful
 for listening to ATIS information without having to leave the primary Com. Note,
 for aircraft with an audio panel that allows multiple Com selection, the mouse
 click is ignored.
+
+To move the window, place the mouse pointer over the window, hold down the
+left mouse button, move the window to the desired location and release the
+mouse button.
 
 
 #### Example Output (where: 0=Unselected, 1=Selected):
