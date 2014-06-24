@@ -37,8 +37,6 @@ X-Plane 10/Resources/plugins folder.
 - automated xcode build
 - automated linux build
 - automated windows build
-- proper window placement when sim window resized
-- floating window
 
 
 #### MISC/NOTES
