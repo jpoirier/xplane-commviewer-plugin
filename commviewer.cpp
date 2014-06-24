@@ -393,7 +393,7 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
         gLastMouseY = y;
         break;
     case xplm_MouseUp:
-        if (MouseDownX == x && MouseDownY == y) {
+        if (MouseDownX == x || MouseDownY == y) {
             int com1 = XPLMGetDatai(audio_selection_com1_dataref);
             int com2 = XPLMGetDatai(audio_selection_com2_dataref);
 
