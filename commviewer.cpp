@@ -293,7 +293,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom,
             if ((int)inParam != PLUGIN_PLANE_ID) { break; }
             LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
-        default: // unknown
+        default:
+            // unknown, anything to do?
             break;
         } // switch (inMsg)
     } // if (inFrom == XPLM_PLUGIN_XPLANE)
@@ -354,11 +355,11 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
  *
  */
 void HandleKeyCallback(XPLMWindowID inWindowID,
-                         char inKey,
-                         XPLMKeyFlags inFlags,
-                         char inVirtualKey,
-                         void* inRefcon,
-                         int losingFocus) {
+                       char inKey,
+                       XPLMKeyFlags inFlags,
+                       char inVirtualKey,
+                       void* inRefcon,
+                       int losingFocus) {
 
     // nothing to do here
 }
@@ -367,7 +368,7 @@ void HandleKeyCallback(XPLMWindowID inWindowID,
  *
  *
  */
- #define COMS_UNCHANGED     (0)
+ #define COMMS_UNCHANGED    (0)
  #define COM1_CHANGED       (1)
  #define COM2_CHANGED       (2)
  #define COMM_UNSELECTED    (0)
@@ -378,7 +379,7 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
                         XPLMMouseStatus inMouse,
                         void* inRefcon) {
 
-    static int com_changed = COMS_UNCHANGED;
+    static int com_changed = COMMS_UNCHANGED;
     static int MouseDownX;
     static int MouseDownY;
 
@@ -422,7 +423,7 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
                 default:
                     break;
                 }
-                com_changed = COMS_UNCHANGED;
+                com_changed = COMMS_UNCHANGED;
             } else if (!com1 && com2) {
                 com_changed = COM1_CHANGED;
                 XPLMSetDatai(audio_selection_com1_dataref, COMM_SELECTED);
