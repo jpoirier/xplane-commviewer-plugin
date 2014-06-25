@@ -52,7 +52,7 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
 
 static void HotKeyCallback(void* inRefcon);
 
-static XPLMWindowID gWindow = NULL;
+static XPLMWindowID gCommWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
@@ -68,8 +68,12 @@ static int gLastMouseY;
 
 // general & misc
 enum {
-    PLUGIN_PLANE_ID = 0,
-    CMD_CONTACT_ATC,
+    PLUGIN_PLANE_ID = 0
+    ,CMD_CONTACT_ATC
+    ,COMMVIEWER_WINDOW
+#ifdef TOGGLE_TEST_FEATURE
+
+#endif
 };
 
 // Command Refs
@@ -80,8 +84,6 @@ XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
 
 #ifdef TOGGLE_TEST_FEATURE
-XPLMDataRef window_ice_dataref;
-
 XPLMDataRef artificial_stability_on_dataref;
 XPLMDataRef artificial_stability_pitch_on_dataref;
 XPLMDataRef artificial_stability_roll_on_dataref;
@@ -136,15 +138,15 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
     gWinPosX = 0;
     gWinPosY = top - 200;
-    gWindow = XPLMCreateWindow(gWinPosX,                // left
-                               gWinPosY,                // top
-                               gWinPosX+WINDOW_WIDTH,   // right
-                               gWinPosY-WINDOW_HEIGHT,  // bottom
-                               true,                    // is visible
-                               DrawWindowCallback,
-                               HandleKeyCallback,
-                               HandleMouseCallback,
-                               NULL);                   // Refcon
+    gCommWindow = XPLMCreateWindow(gWinPosX,                // left
+                                   gWinPosY,                // top
+                                   gWinPosX+WINDOW_WIDTH,   // right
+                                   gWinPosY-WINDOW_HEIGHT,  // bottom
+                                   true,                    // is visible
+                                   DrawWindowCallback,
+                                   HandleKeyCallback,
+                                   HandleMouseCallback,
+                                   (void*)COMMVIEWER_WINDOW);    // Refcon
 
 #ifdef TOGGLE_TEST_FEATURE
     //gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
@@ -308,21 +310,33 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     int right;
     int bottom;
     static char str[100];
-    static float color[] = {1.0, 1.0, 1.0};  // RGB White
+    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
 
-    //int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
-    //XPLMDrawTranslucentDarkBox(0, top-200, 300, top-200-50);
 
-    // location of the window and draw the window
+    // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-    // text to window, NULL indicates no word wrap
-    sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-        (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
-        XPLMGetDatai(audio_selection_com1_dataref),
-        XPLMGetDatai(audio_selection_com2_dataref));
-    XPLMDrawString(color, left+5, top-20, str, NULL, xplmFont_Basic);
+    switch (reinterpret_cast<uint32_t>(inRefcon)) {
+    case COMMVIEWER_WINDOW:
+        // text to window, NULL indicates no word wrap
+        sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
+                XPLMGetDatai(audio_selection_com1_dataref),
+                XPLMGetDatai(audio_selection_com2_dataref));
+        XPLMDrawString(commviewer_color,
+                       left+5,
+                       top-20,
+                       str,
+                       NULL,
+                       xplmFont_Basic);
+        break;
+    default:
+        break;
+    }
+
+
+
 
     //glDisable(GL_TEXTURE_2D);
     //glColor3f(0.7, 0.7, 0.7);
