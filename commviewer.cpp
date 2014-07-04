@@ -8,7 +8,7 @@
 #endif
 
 #ifdef _APPLE_
-#include <OpenGl/gl.h>
+//#include <OpenGl/gl.h>
 #else
 #include <GL/gl.h>
 #endif
@@ -19,16 +19,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "XPLMDefs.h"
-#include "XPLMPlugin.h"
-#include "XPLMProcessing.h"
-#include "XPLMDataAccess.h"
-#include "XPLMUtilities.h"
-#include "XPLMDisplay.h"
-#include "XPLMGraphics.h"
+#include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
+#include "./SDK/CHeaders/XPLM/XPLMProcessing.h"
+#include "./SDK/CHeaders/XPLM/XPLMDataAccess.h"
+#include "./SDK/CHeaders/XPLM/XPLMUtilities.h"
+#include "./SDK/CHeaders/XPLM/XPLMDisplay.h"
+#include "./SDK/CHeaders/XPLM/XPLMGraphics.h"
 
-#include "defs.h"
-#include "commviewer.h"
+#include "./include/defs.h"
+#include "./include/commviewer.h"
 
 static int CommandHandler(XPLMCommandRef inCommand,
                           XPLMCommandPhase inPhase,
@@ -210,7 +209,7 @@ int CommandHandler(XPLMCommandRef inCommand,
 //        return IGNORED_EVENT;
 //    }
 
-    switch (reinterpret_cast<uint32_t>(inRefcon)) {
+    switch (reinterpret_cast<int>(inRefcon)) {
     case CMD_CONTACT_ATC:
         switch (inPhase) {
         case xplm_CommandBegin:
@@ -286,11 +285,11 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom,
             break;
         // XXX: system state and procedure, what's difference between an unloaded and crashed plane?
         case XPLM_MSG_PLANE_CRASHED:
-            if ((int)inParam != PLUGIN_PLANE_ID) { break; }
+            if (inparam != PLUGIN_PLANE_ID) { break; }
             LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
             break;
         case XPLM_MSG_PLANE_UNLOADED:
-            if ((int)inParam != PLUGIN_PLANE_ID) { break; }
+            if (inparam != PLUGIN_PLANE_ID) { break; }
             LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
         default:
@@ -318,7 +317,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-    switch (reinterpret_cast<uint32_t>(inRefcon)) {
+    switch (reinterpret_cast<int>(inRefcon)) {
     case COMMVIEWER_WINDOW:
         // text to window, NULL indicates no word wrap
         sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
@@ -399,7 +398,7 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
         // and whether the window is being dragged or not
         gWinPosX += (x - gLastMouseX);
         gWinPosY += (y - gLastMouseY);
-        XPLMSetWindowGeometry(gWindow,
+        XPLMSetWindowGeometry(gCommWindow,
                               gWinPosX,
                               gWinPosY,
                               gWinPosX+WINDOW_WIDTH,

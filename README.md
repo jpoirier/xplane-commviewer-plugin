@@ -34,6 +34,8 @@ X-Plane 10/Resources/plugins folder.
 
 
 #### TODO
+- add hotkey handling to hide the window
+- add comm audio volume control
 - automated xcode build
 - automated linux build
 - automated windows build
