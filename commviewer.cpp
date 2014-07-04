@@ -56,8 +56,8 @@ static XPLMHotKeyID gHotKey = NULL;
 
 #define WINDOW_WIDTH (200)
 #define WINDOW_HEIGHT (40)
-static int gWinPosX;
-static int gWinPosY;
+static int gCommWinPosX;
+static int gCommWinPosY;
 static int gLastMouseX;
 static int gLastMouseY;
 
@@ -131,13 +131,13 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     panel_visible_win_t_dataref = XPLMFindDataRef("sim/graphics/view/panel_visible_win_t");
 
     int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
-    gWinPosX = 0;
-    gWinPosY = top - 200;
-    gCommWindow = XPLMCreateWindow(gWinPosX,                // left
-                                   gWinPosY,                // top
-                                   gWinPosX+WINDOW_WIDTH,   // right
-                                   gWinPosY-WINDOW_HEIGHT,  // bottom
-                                   true,                    // is visible
+    gCommWinPosX = 0;
+    gCommWinPosY = top - 200;
+    gCommWindow = XPLMCreateWindow(gCommWinPosX,                // left
+                                   gCommWinPosY,                // top
+                                   gCommWinPosX+WINDOW_WIDTH,   // right
+                                   gCommWinPosY-WINDOW_HEIGHT,  // bottom
+                                   true,                        // is visible
                                    DrawWindowCallback,
                                    HandleKeyCallback,
                                    HandleMouseCallback,
@@ -380,9 +380,9 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
 
     switch (inMouse) {
     case xplm_MouseDown:
-        // if ((x >= gWinPosX+WINDOW_WIDTH-8) &&
-        //     (x <= gWinPosX+WINDOW_WIDTH) &&
-        //     (y <= gWinPosY) && (y >= gWinPosY-8)) {
+        // if ((x >= gCommWinPosX+WINDOW_WIDTH-8) &&
+        //     (x <= gCommWinPosX+WINDOW_WIDTH) &&
+        //     (y <= gCommWinPosY) && (y >= gCommWinPosY-8)) {
         //         windowCloseRequest = 1;
         //     } else {
                 MouseDownX = gLastMouseX = x;
@@ -392,13 +392,13 @@ int HandleMouseCallback(XPLMWindowID inWindowID,
     case xplm_MouseDrag:
         // this event fires while xplm_MouseDown
         // and whether the window is being dragged or not
-        gWinPosX += (x - gLastMouseX);
-        gWinPosY += (y - gLastMouseY);
+        gCommWinPosX += (x - gLastMouseX);
+        gCommWinPosY += (y - gLastMouseY);
         XPLMSetWindowGeometry(gCommWindow,
-                              gWinPosX,
-                              gWinPosY,
-                              gWinPosX+WINDOW_WIDTH,
-                              gWinPosY-WINDOW_HEIGHT);
+                              gCommWinPosX,
+                              gCommWinPosY,
+                              gCommWinPosX+WINDOW_WIDTH,
+                              gCommWinPosY-WINDOW_HEIGHT);
         gLastMouseX = x;
         gLastMouseY = y;
         break;
