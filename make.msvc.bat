@@ -48,7 +48,7 @@ set CL_DEFS=/D "NDEBUG" /D "WIN32" /D "_MBCS"  /D "XPLM200" /D "_USRDLL" /D "_WI
 set CL_FILES="commviewer_win.cpp" /TP "commviewer.cpp"
 
 :: /MACHINE:X64
-set LINK_OPTS=/OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /MANIFEST:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
+set LINK_OPTS=/MACHINE:X64 /OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /MANIFEST:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
 
 :: "libcmt.lib" "SetupAPI.lib" "XPLM_64.lib" "XPLM.lib"
 set LINK_LIBS="user32.lib" "Opengl32.lib" "odbc32.lib" "odbccp32.lib" "XPLM_64.lib" "kernel32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib"
