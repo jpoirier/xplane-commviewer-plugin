@@ -14,6 +14,7 @@
 #endif
 
 #include <stdio.h>
+#include <math.h>
 
 #include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
 #include "./SDK/CHeaders/XPLM/XPLMProcessing.h"
@@ -332,19 +333,19 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     }
 
 #ifdef TOGGLE_TEST_FEATURE
-    float x1 = (float)(left + 50);
-    float y1 = (float)(top - 20);
-    float x2;
-    float y2;
-    double radius = 0.1;
+    GLfloat x1 = (GLfloat)(right + 5);
+    GLfloat y1 = (GLfloat)(top - 5);
+    GLfloat x2;
+    GLfloat y2;
+    GLfloat radius = 0.1f;
 
     glDisable(GL_TEXTURE_2D);
-    glColor3f(1.0, 1.0, 0.6);
+    glColor3f(1.0f, 1.0f, 0.6f);
     glBegin(GL_TRIANGLE_FAN);
         glVertex2f(x1, y1);  // x & y
-        for (float angle = 1.0f; angle < 361.0f; angle += 0.2) {
-            x2 = x1 + sin(angle) * radius;
-            y2 = y1 + cos(angle) * radius;
+        for (GLfloat angle = 1.0f; angle < 361.0f; angle += 0.2f) {
+            x2 = x1 + (GLfloat)sin(angle) * radius;
+            y2 = y1 + (GLfloat)cos(angle) * radius;
             glVertex2f(x2, y2);
         }
     glEnd();
