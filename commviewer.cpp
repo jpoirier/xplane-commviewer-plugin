@@ -331,8 +331,25 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
         break;
     }
 
+#ifdef TOGGLE_TEST_FEATURE
+    float x1 = (float)(left + 50);
+    float y1 = (float)(top - 20);
+    float x2;
+    float y2;
+    double radius = 0.1;
 
-
+    glDisable(GL_TEXTURE_2D);
+    glColor3f(1.0, 1.0, 0.6);
+    glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(x1, y1);  // x & y
+        for (float angle = 1.0f; angle < 361.0f; angle += 0.2) {
+            x2 = x1 + sin(angle) * radius;
+            y2 = y1 + cos(angle) * radius;
+            glVertex2f(x2, y2);
+        }
+    glEnd();
+    glEnable(GL_TEXTURE_2D);
+#endif
 
     //glDisable(GL_TEXTURE_2D);
     //glColor3f(0.7, 0.7, 0.7);
