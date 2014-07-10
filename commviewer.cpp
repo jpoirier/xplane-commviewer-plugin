@@ -78,6 +78,10 @@ XPLMDataRef avionics_power_on_dataref;
 XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
 
+XPLMDataRef pilotedge_rx_status_dataref;
+XPLMDataRef pilotedge_tx_status_dataref;
+XPLMDataRef pilotedge_connected_dataref;
+
 #ifdef TOGGLE_TEST_FEATURE
 XPLMDataRef artificial_stability_on_dataref;
 XPLMDataRef artificial_stability_pitch_on_dataref;
@@ -110,6 +114,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
+
+    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
+    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
+    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
 
 #ifdef TOGGLE_TEST_FEATURE
     artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
@@ -315,11 +323,33 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
 
     switch (reinterpret_cast<int>(inRefcon)) {
     case COMMVIEWER_WINDOW:
+        char rx_status = (pilotedge_rx_status_dataref ?
+                          XPLMGetDatab(pilotedge_rx_status_dataref) : false) ?
+                          (char)\x254 : " ");
+
+        char tx_status = (pilotedge_tx_status_dataref ?
+                          XPLMGetDatab(pilotedge_tx_status_dataref) : false) ?
+                          (char)\x254 : " ");
+
+        char connected = (pilotedge_tx_status_dataref ?
+                          XPLMGetDatab(pilotedge_connected_dataref) : false) ?
+                          "YES" : "NO";
+
         // text to window, NULL indicates no word wrap
+#if false
         sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
                 (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
                 XPLMGetDatai(audio_selection_com1_dataref),
                 XPLMGetDatai(audio_selection_com2_dataref));
+#else
+        sprintf(str,"[PilotEdge] Connected: %s,\t\t\tTX: %c\t\t\tRX: %c\n%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+                connected,
+                tx_status,
+                rx_status,
+                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
+                XPLMGetDatai(audio_selection_com1_dataref),
+                XPLMGetDatai(audio_selection_com2_dataref));
+#endif
         XPLMDrawString(commviewer_color,
                        left+5,
                        top-20,
