@@ -46,6 +46,7 @@ X-Plane 10/Resources/plugins folder.
 - xcodebuild -project saitek.xcodeproj -alltargets -configuration Debug
 
 #### VERSIONS
+- 1.4.2 bug fix, correct typecast sizes and types
 - 1.4.1 added PilotEdge connection and TX/RX status
 - 1.4 box movement check changes
 - 1.3 standard plugin folder structure

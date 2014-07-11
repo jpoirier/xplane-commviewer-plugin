@@ -8,13 +8,15 @@
 #endif
 
 #ifdef _APPLE_
-//#include <OpenGl/gl.h>
+ #pragma clang diagnostic ignored "-Wall"
+ #include <gl.h>
 #else
 #include <GL/gl.h>
 #endif
 
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
 #include "./SDK/CHeaders/XPLM/XPLMProcessing.h"
@@ -210,7 +212,7 @@ int CommandHandler(XPLMCommandRef inCommand,
 //        return IGNORED_EVENT;
 //    }
 
-    switch (reinterpret_cast<int>(inRefcon)) {
+    switch (reinterpret_cast<size_t>(inRefcon)) {
     case CMD_CONTACT_ATC:
         switch (inPhase) {
         case xplm_CommandBegin:
@@ -269,7 +271,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom,
                                       void* inParam) {
 
     if (inFrom == XPLM_PLUGIN_XPLANE) {
-        int inparam = reinterpret_cast<int>(inParam);
+        size_t inparam = reinterpret_cast<size_t>(inParam);
         switch (inMsg) {
         case XPLM_MSG_PLANE_LOADED:
             if (inparam != PLUGIN_PLANE_ID || gPlaneLoaded) { break; }
@@ -325,7 +327,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-    switch (reinterpret_cast<int>(inRefcon)) {
+    switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
 #if 0
         sprintf(str1,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
@@ -348,9 +350,9 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                     XPLMGetDatai(pilotedge_tx_status_dataref) : false) ?
                     1 : 0;
 
-        connected = (pilotedge_tx_status_dataref ?
+        connected = (pilotedge_connected_dataref ?
                     XPLMGetDatai(pilotedge_connected_dataref) : false) ?
-                    "YES" : "NO ";
+                    (char*)"YES" : (char*)"NO ";
 
         sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
                 connected,
@@ -360,7 +362,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
         sprintf(str2,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
                 (char*)(gPTT_On ? "PTT: ON " : "PTT: OFF"),
                 XPLMGetDatai(audio_selection_com1_dataref),
-                XPLMGetDatai(audio_selection_com2_dataref));  
+                XPLMGetDatai(audio_selection_com2_dataref));
 
         // text to window, NULL indicates no word wrap
         XPLMDrawString(commviewer_color,
@@ -375,7 +377,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                        top-40,
                        str2,
                        NULL,
-                       xplmFont_Basic);                
+                       xplmFont_Basic);
 #endif
         break;
     default:
@@ -400,7 +402,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
         }
     glEnd();
     glEnable(GL_TEXTURE_2D);
-    
+
 
     //glDisable(GL_TEXTURE_2D);
     //glColor3f(0.7, 0.7, 0.7);
