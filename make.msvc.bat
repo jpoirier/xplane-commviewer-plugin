@@ -47,6 +47,7 @@ set CL_DEFS=/D "NDEBUG" /D "WIN32" /D "_MBCS"  /D "XPLM200" /D "_USRDLL" /D "_WI
 
 set CL_FILES="commviewer_win.cpp" /TP "commviewer.cpp"
 
+:: /MACHINE:X86
 :: /MACHINE:X64
 set LINK_OPTS=/MACHINE:X64 /OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /MANIFEST:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
 
