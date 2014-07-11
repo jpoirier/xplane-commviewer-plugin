@@ -55,8 +55,8 @@ static const float FL_CB_INTERVAL = -1.0;
 static bool gPTT_On = false;
 static XPLMHotKeyID gHotKey = NULL;
 
-#define WINDOW_WIDTH (200)
-#define WINDOW_HEIGHT (40)
+#define WINDOW_WIDTH (290)
+#define WINDOW_HEIGHT (60)
 static int gCommWinPosX;
 static int gCommWinPosY;
 static int gLastMouseX;
@@ -115,10 +115,6 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
-
-    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
-    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
-    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
 
 #ifdef TOGGLE_TEST_FEATURE
     artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
@@ -314,9 +310,16 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     int top;
     int right;
     int bottom;
-    static char str[100];
+    int rx_status;
+    int tx_status;
+    char* connected;
+    static char str1[100];
+    static char str2[100];
     static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
 
+    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
+    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
+    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
 
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
@@ -324,39 +327,56 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
 
     switch (reinterpret_cast<int>(inRefcon)) {
     case COMMVIEWER_WINDOW:
-        char rx_status = (pilotedge_rx_status_dataref ?
-                          XPLMGetDatab(pilotedge_rx_status_dataref) : false) ?
-                          (char)\x254 : " ");
-
-        char tx_status = (pilotedge_tx_status_dataref ?
-                          XPLMGetDatab(pilotedge_tx_status_dataref) : false) ?
-                          (char)\x254 : " ");
-
-        char connected = (pilotedge_tx_status_dataref ?
-                          XPLMGetDatab(pilotedge_connected_dataref) : false) ?
-                          "YES" : "NO";
-
+#if 0
+        sprintf(str1,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
+                XPLMGetDatai(audio_selection_com1_dataref),
+                XPLMGetDatai(audio_selection_com2_dataref));
         // text to window, NULL indicates no word wrap
-#if false
-        sprintf(str,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
-                XPLMGetDatai(audio_selection_com1_dataref),
-                XPLMGetDatai(audio_selection_com2_dataref));
-#else
-        sprintf(str,"[PilotEdge] Connected: %s,\t\t\tTX: %c\t\t\tRX: %c\n%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-                connected,
-                tx_status,
-                rx_status,
-                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
-                XPLMGetDatai(audio_selection_com1_dataref),
-                XPLMGetDatai(audio_selection_com2_dataref));
-#endif
         XPLMDrawString(commviewer_color,
                        left+5,
                        top-20,
-                       str,
+                       str1,
                        NULL,
                        xplmFont_Basic);
+#else
+        rx_status = (pilotedge_rx_status_dataref ?
+                    XPLMGetDatai(pilotedge_rx_status_dataref) : false) ?
+                    1 : 0;
+
+        tx_status = (pilotedge_tx_status_dataref ?
+                    XPLMGetDatai(pilotedge_tx_status_dataref) : false) ?
+                    1 : 0;
+
+        connected = (pilotedge_tx_status_dataref ?
+                    XPLMGetDatai(pilotedge_connected_dataref) : false) ?
+                    "YES" : "NO ";
+
+        sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
+                connected,
+                tx_status,
+                rx_status);
+
+        sprintf(str2,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+                (char*)(gPTT_On ? "PTT: ON " : "PTT: OFF"),
+                XPLMGetDatai(audio_selection_com1_dataref),
+                XPLMGetDatai(audio_selection_com2_dataref));  
+
+        // text to window, NULL indicates no word wrap
+        XPLMDrawString(commviewer_color,
+                       left+4,
+                       top-20,
+                       str1,
+                       NULL,
+                       xplmFont_Basic);
+
+        XPLMDrawString(commviewer_color,
+                       left+4,
+                       top-40,
+                       str2,
+                       NULL,
+                       xplmFont_Basic);                
+#endif
         break;
     default:
         break;
@@ -380,7 +400,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
         }
     glEnd();
     glEnable(GL_TEXTURE_2D);
-#endif
+    
 
     //glDisable(GL_TEXTURE_2D);
     //glColor3f(0.7, 0.7, 0.7);
@@ -391,6 +411,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     //    glVertex2i(right-1, top-7);
     //glEnd();
     //glEnable(GL_TEXTURE_2D);
+#endif
 }
 
 /*
