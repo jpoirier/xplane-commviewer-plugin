@@ -13,12 +13,15 @@ left mouse button, move the window to the desired location and release the
 mouse button.
 
 
-#### Example Output (where: 0=Unselected, 1=Selected):
+#### Example Output (where: COMX 0=Unselected, 1=Selected, TX/RX ON=1, OFF=0):
 
+[Pilot Edge] Connected: YES     TX: 0   RX: 1
 PTT: OFF   COM1: 1   COM2: 0
 
-PTT: ON   COM1: 1   COM2: 0
+[Pilot Edge] Connected: NO      TX: 0   RX: 0
+PTT: ON    COM1: 1   COM2: 0
 
+[Pilot Edge] Connected: YES     TX: 1   RX: 0
 PTT: OFF   COM1: 1   COM2: 1
 
 
@@ -29,11 +32,20 @@ Open an MSVC++ tool shell specific to the desired target (32/64 bit) and "cd"
 to the directory containing the plugin code. Change XPLM_64.lib or XPLM.lib,
 32-bit and 64-bit respectively, on the "set LINK_LIBS" in make.msvc.bat.
 
-Run make.msvc.bat from the shell window then move the CommViewer.xpl plugin to
+Run make.msvc.bat from a shell window then move the win.xpl plugin to
 X-Plane 10/Resources/plugins folder.
+
+#### Mac Build
+Open the make file (Makefile) and under the darwin settings, set the INCLUDE
+variable to your system's opengl header file path. The the arch value (i386 or
+x86_64) for LNFLAGS and CFLAGS.
+
+Run make from a shell window then move the win.xpl plugin to
+X-Plane 10/Resources/plugins folder
 
 
 #### TODO
+- add version info to the plugin string name
 - add hotkey handling to hide the window
 - add comm audio volume control
 - automated xcode build
@@ -42,8 +54,7 @@ X-Plane 10/Resources/plugins folder.
 
 
 #### MISC/NOTES
-- xcode cli  Release|Debug
-- xcodebuild -project saitek.xcodeproj -alltargets -configuration Debug
+
 
 #### VERSIONS
 - 1.4.3 add make file and osx binaries
