@@ -13,7 +13,7 @@ left mouse button, move the window to the desired location and release the
 mouse button.
 
 
-#### Example Output (where: COMx 0=Unselected, 1=Selected, TX/RX ON=1, OFF=0):
+#### Example Output (where, COMx: 0=Unselected, 1=Selected, TX/RX: ON=1, OFF=0):
 ```
 [Pilot Edge] Connected: YES     TX: 0   RX: 1
 PTT: OFF   COM1: 1   COM2: 0
