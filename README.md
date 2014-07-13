@@ -14,16 +14,18 @@ mouse button.
 
 
 #### Example Output (where: COMX 0=Unselected, 1=Selected, TX/RX ON=1, OFF=0):
-
+```
 [Pilot Edge] Connected: YES     TX: 0   RX: 1
 PTT: OFF   COM1: 1   COM2: 0
-
+```
+```
 [Pilot Edge] Connected: NO      TX: 0   RX: 0
 PTT: ON    COM1: 1   COM2: 0
-
+```
+```
 [Pilot Edge] Connected: YES     TX: 1   RX: 0
 PTT: OFF   COM1: 1   COM2: 1
-
+```
 
 #### Windows Build
 Plugin compiled using MSVC++ 2012 Express.
