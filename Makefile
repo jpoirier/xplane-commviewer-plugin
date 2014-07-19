@@ -14,8 +14,10 @@ ifeq ($(HOSTOS),darwin)
 else
  ifeq ($(HOSTOS),linux)
   FILE_NAME=lin.xpl
-  LNFLAGS=-shared -rdynamic -nodefaultlibs
-  CFLAGS=-march=i386 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden
+  LIBS=
+  # -m64
+  LNFLAGS=-m32 -shared -rdynamic -nodefaultlibs -undefined_warning
+  CFLAGS=-m32 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
  else # windows
   FILE_NAME=win.xpl
   LIBS=-lXPLM

@@ -11,7 +11,7 @@
  #pragma clang diagnostic ignored "-Wall"
  #include <gl.h>
 #else
-#include <GL/gl.h>
+ //#include <GL/gl.h>
 #endif
 
 #include <stdio.h>
