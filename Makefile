@@ -16,8 +16,8 @@ else
   FILE_NAME=lin.xpl
   LIBS=
   # -m64
-  LNFLAGS=-m32 -shared -rdynamic -nodefaultlibs -undefined_warning
-  CFLAGS=-m32 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
+  LNFLAGS=-m64 -shared -rdynamic -nodefaultlibs -undefined_warning
+  CFLAGS=-m64 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
  else # windows
   FILE_NAME=win.xpl
   LIBS=-lXPLM
