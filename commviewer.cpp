@@ -85,6 +85,8 @@ XPLMDataRef pilotedge_rx_status_dataref;
 XPLMDataRef pilotedge_tx_status_dataref;
 XPLMDataRef pilotedge_connected_dataref;
 
+XPLMDataRef radio_volume_ratio_dataref;
+
 #ifdef TOGGLE_TEST_FEATURE
 XPLMDataRef artificial_stability_on_dataref;
 XPLMDataRef artificial_stability_pitch_on_dataref;
@@ -117,6 +119,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
+    radio_volume_ratio_dataref = XPLMFindDataRef("sim/operation/sound/radio_volume_ratio");  // 0.0 - 1.0
 
 #ifdef TOGGLE_TEST_FEATURE
     artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
@@ -319,16 +322,15 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     static char str2[100];
     static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
 
-    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
-    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
-    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
-
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
+        pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
+        pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
+        pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
 #if 0
         sprintf(str1,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
                 (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
