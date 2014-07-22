@@ -27,6 +27,7 @@
 
 #include "./include/defs.h"
 #include "./include/commviewer.h"
+#include "./include/png.h"
 
 static int CommandHandler(XPLMCommandRef inCommand,
                           XPLMCommandPhase inPhase,

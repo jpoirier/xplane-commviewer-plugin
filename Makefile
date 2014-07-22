@@ -7,8 +7,8 @@ ifeq ($(HOSTOS),darwin)
  # -arch i386 -arch x86_64
  FILE_NAME=mac.xpl
  INCLUDE=-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/OpenGL.framework/Headers
- LIBS=-framework IOKit -framework CoreFoundation -framework OpenGL
- LNFLAGS=-arch x86_64 -dynamiclib -flat_namespace -undefined warning
+ LIBS=-framework IOKit -framework CoreFoundation -framework OpenGL -l png
+ LNFLAGS=-arch x86_64 -dynamiclib -flat_namespace -undefined warning -L.
  # -DTOGGLE_TEST_FEATURE
  CFLAGS=-arch x86_64 -Wall -O3 -D_APPLE_ -DAPL=1 -DIBM=0 -DLIN=0
 else
