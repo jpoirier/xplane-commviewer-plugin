@@ -9,3 +9,4 @@ wg
 *.exp
 archives/*
 build/*
+releases/CommViewer/*
