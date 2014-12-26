@@ -162,6 +162,10 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     //                             NULL);
 #endif
 
+    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
+    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
+    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
+
     LPRINTF("CommView Plugin: startup completed\n");
 
     return PROCESSED_EVENT;
@@ -329,9 +333,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
 
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
-        pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
-        pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
-        pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
 #if 0
         sprintf(str1,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
                 (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
@@ -345,17 +346,11 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                        NULL,
                        xplmFont_Basic);
 #else
-        rx_status = (pilotedge_rx_status_dataref ?
-                    XPLMGetDatai(pilotedge_rx_status_dataref) : false) ?
-                    1 : 0;
-
-        tx_status = (pilotedge_tx_status_dataref ?
-                    XPLMGetDatai(pilotedge_tx_status_dataref) : false) ?
-                    1 : 0;
-
-        connected = (pilotedge_connected_dataref ?
-                    XPLMGetDatai(pilotedge_connected_dataref) : false) ?
-                    (char*)"YES" : (char*)"NO ";
+        // The pilotedge plugin isn't loaded when its data refs are null,
+        // which isn't a problem; we handle all scenarios...
+        rx_status = (pilotedge_rx_status_dataref ? XPLMGetDatai(pilotedge_rx_status_dataref) : false) ? 1 : 0;
+        tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
+        connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
 
         sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
                 connected,

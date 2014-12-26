@@ -40,9 +40,6 @@ int LoadGL_PNG_Textures(char* textureName) {
 }
 
 
-To draw a texture, I use this function... you have to fill in your own texture coordinate and position details:
-
-
 void DrawPNGtexture (TEXTURE_ID textId, .... also pass in draw coordinates and texture coordinates)
 {
     // XPLMSetGraphicsState(0/*Fog*/, 1/*TexUnits*/, 0/*Lighting*/, 0/*AlphaTesting*/, 1/*AlphaBlending*/, 1/*DepthTesting*/, 0/*DepthWriting*/)
