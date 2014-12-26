@@ -104,7 +104,7 @@ XPLMDataRef panel_visible_win_t_dataref;
  */
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 {
-    LPRINTF("CommView Plugin: XPluginStart\n");
+    LPRINTF("CommViewer Plugin: XPluginStart\n");
     strcpy(outName, "CommViewer");
     strcpy(outSig , "jdp.comm.viewer");
     strcpy(outDesc, "CommViewer Plugin.");
@@ -118,7 +118,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
     // sim/cockpit2/radios/actuators/com2_power int y   boolean Com radio 2 off or on, 0 or 1.
 
     //avionics_power_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/avionics_power_on");
-    //LPRINTF("CommView Plugin: data/command refs initialized\n");
+    //LPRINTF("CommViewer Plugin: data/command refs initialized\n");
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
@@ -164,7 +164,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
     //                             NULL);
 #endif
 
-    LPRINTF("CommView Plugin: startup completed\n");
+    LPRINTF("CommViewer Plugin: startup completed\n");
 
     return PROCESSED_EVENT;
 }
@@ -243,7 +243,7 @@ PLUGIN_API void XPluginStop(void)
 {
     gPluginEnabled = false;
     //XPLMUnregisterFlightLoopCallback(FlightLoopCallback, NULL);
-    LPRINTF("CommView Plugin: XPluginStop\n");
+    LPRINTF("CommViewer Plugin: XPluginStop\n");
 }
 
 /*
@@ -252,7 +252,7 @@ PLUGIN_API void XPluginStop(void)
 PLUGIN_API void XPluginDisable(void)
 {
     gPluginEnabled = false;
-    LPRINTF("CommView Plugin: XPluginDisable\n");
+    LPRINTF("CommViewer Plugin: XPluginDisable\n");
 }
 
 /*
@@ -261,7 +261,7 @@ PLUGIN_API void XPluginDisable(void)
 PLUGIN_API int XPluginEnable(void)
 {
     gPluginEnabled = true;
-    LPRINTF("CommView Plugin: XPluginEnable\n");
+    LPRINTF("CommViewer Plugin: XPluginEnable\n");
 
     return PROCESSED_EVENT;
 }
@@ -282,26 +282,26 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inP
             // The assumption is that all plugins are loaded prior to the first
             // aircraft being loaded when x-plane initially starts up.
             gPlaneLoaded = true;
-
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
             break;
         case XPLM_MSG_AIRPORT_LOADED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
             break;
         case XPLM_MSG_SCENERY_LOADED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
             break;
         case XPLM_MSG_AIRPLANE_COUNT_CHANGED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
             break;
         // XXX: system state and procedure, what's difference between an unloaded and crashed plane?
         case XPLM_MSG_PLANE_CRASHED:
             if (inparam != PLUGIN_PLANE_ID) { break; }
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
             break;
         case XPLM_MSG_PLANE_UNLOADED:
-            if (inparam != PLUGIN_PLANE_ID) { break; }
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
+            if (inparam != PLUGIN_PLANE_ID || !gPlaneLoaded) { break; }
+            gPlaneLoaded = false;
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
         default:
             // unknown, anything to do?
