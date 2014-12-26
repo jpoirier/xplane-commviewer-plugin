@@ -15,7 +15,7 @@ else
  ifeq ($(HOSTOS),linux)
   FILE_NAME=lin.xpl
   LIBS=
-  # -m64
+  # -m32 -m64
   LNFLAGS=-m64 -shared -rdynamic -nodefaultlibs -undefined_warning
   CFLAGS=-m64 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
  else # windows
