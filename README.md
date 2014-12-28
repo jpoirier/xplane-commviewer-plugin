@@ -30,45 +30,34 @@ PTT: OFF   COM1: 1   COM2: 1
 #### Windows Build
 Plugin compiled using MSVC++ 2012 Express.
 
-Open an MSVC++ tool shell specific to the desired target (32/64 bit) and "cd"
-to the directory containing the plugin code. Change the following items in the
-make.msvc.bat file:
+Open a MSVC++ tool shell specific to the desired target (32/64 bit) 
+and "cd" to the directory containing the plugin code then:
 
-set LINK_LIBS, use XPLM_64.lib or XPLM.lib, 64-bit and 32-bit respectively
-set LINK_OPTS, use /MACHINE:X64 or /MACHINE:X86, 64-bit and 32-bit respectively
+- to build a 64-bit binary: > make.msvc.bat 
+- to build a 32-bit binary: > make.msvc.bat 386
+
+Move the win.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
 
-Run make.msvc.bat from a shell window then move the win.xpl plugin to
-X-Plane 10/Resources/plugins folder.
+#### Mac & Linux Build
+Run make from a shell window:
 
-#### Mac Build
-Open the make file (Makefile) and under the darwin settings, set the INCLUDE
-variable to your system's opengl header file path and the arch value (-arch i386 or
--arch x86_64) for LNFLAGS and CFLAGS.
+- to build a 64-bit binary: $ make
+- to build a 32-bit binary: $ make 386=1
 
-Run make from a shell window then move the win.xpl plugin to X-Plane 10/Resources/plugins folder
+Move the *.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
-#### Linux Build
-Open the make file (Makefile) and under the darwin settings, set the INCLUDE
-variable to your system's opengl header file path and the arch value (-m32 or
--m64) for LNFLAGS and CFLAGS.
-
-Run make from a shell window then move the win.xpl plugin to X-Plane 10/Resources/plugins folder
 
 #### TODO
-- add version info to the plugin string name
 - add hotkey handling to hide the window
 - add comm audio volume control
-- automated xcode build
-- automated linux build
-- automated windows build
 
 
 #### MISC/NOTES
 
 
 #### VERSIONS
-- 1.5.2 add version, date, and email info to the plugin's info
+- 1.5.2 add version, date, and email info to the plugin's info, other optimizations
 - 1.5.1 window callbacks sanity check the incoming window id
 - 1.5.0 added a pilotedge plugin registration check with proper ref assignment
 - 1.4.3 add make file and osx binaries

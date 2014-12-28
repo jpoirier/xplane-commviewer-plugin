@@ -48,9 +48,10 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
                                XPLMMouseStatus inMouse,
                                void* inRefcon);
 
+
 // To define, pass -DVERSION=vX.Y.X when building 
 #ifndef VERSION
-#define VERSION "vX.Y.Z" 
+#define VERSION "vUNKNOWN" 
 #endif
 
 // sigh, two levels of macros are needed to stringify

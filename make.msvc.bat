@@ -1,5 +1,13 @@
 @ECHO OFF
 
+set ARCH=X64
+set XPLM_LIB="XPLM_64.lib"
+
+if "%1"=="386" (
+set ARCH=X86
+set XPLM_LIB="XPLM.lib"
+)
+
 :: this assumes we have the proper tag
 :: if created via the github website then do $ git fetch --tags
 FOR /F %%I IN ('git describe --abbrev=0 --tags') DO SET GIT_VER=%%I
@@ -55,10 +63,10 @@ set CL_DEFS=/D "VERSION=%GIT_VER%" /D "NDEBUG" /D "WIN32" /D "_MBCS"  /D "XPLM20
 set CL_FILES="commviewer_win.cpp" /TP "commviewer.cpp"
 
 :: /MACHINE:X86 /MACHINE:X64
-set LINK_OPTS=/MACHINE:X64 /OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /MANIFEST:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
+set LINK_OPTS=/MACHINE:%ARCH% /OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /MANIFEST:NO /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
 
 :: "XPLM_64.lib" "XPLM.lib"
-set LINK_LIBS="user32.lib" "Opengl32.lib" "odbc32.lib" "odbccp32.lib" "XPLM_64.lib" "kernel32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib"
+set LINK_LIBS=%XPLM_LIB% "user32.lib" "Opengl32.lib" "odbc32.lib" "odbccp32.lib" "kernel32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib"
 set LINK_OBJS="commviewer.obj" "commviewer_win.obj"
 
 @ECHO ON
