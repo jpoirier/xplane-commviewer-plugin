@@ -48,14 +48,16 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
                                XPLMMouseStatus inMouse,
                                void* inRefcon);
 
+#ifdef TOGGLE_TEST_FEATURE
+static XPLMHotKeyID gHotKey = NULL;
 static void HotKeyCallback(void* inRefcon);
+#endif
 
 static XPLMWindowID gCommWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
 static bool gPTT_On = false;
-static XPLMHotKeyID gHotKey = NULL;
 static bool gPilotEdgePlugin = false;
 
 #define WINDOW_WIDTH (290)
@@ -155,6 +157,9 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
                                    HandleKeyCallback,
                                    HandleMouseCallback,
                                    (void*)COMMVIEWER_WINDOW);    // Refcon
+
+    // printf("CommViewer, left:%d, right:%d, top:%d, bottom:%d\n",
+    //     gCommWinPosX, gCommWinPosX+WINDOW_WIDTH, gCommWinPosY, gCommWinPosY-WINDOW_HEIGHT);
 
 #ifdef TOGGLE_TEST_FEATURE
     //gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
@@ -272,15 +277,9 @@ PLUGIN_API int XPluginEnable(void)
 PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inParam)
 {
     if (inFrom == XPLM_PLUGIN_XPLANE) {
-        size_t inparam = reinterpret_cast<size_t>(inParam);
+        // size_t inparam = reinterpret_cast<size_t>(inParam);
         switch (inMsg) {
         case XPLM_MSG_PLANE_LOADED:
-            if (inparam != PLUGIN_PLANE_ID || gPlaneLoaded) { break; }
-            // We want to avoid repeated calls to XPLMFindDataRef; it's an
-            // expensive op, but we don't know the order in which plugins are
-            // loaded, we're specifically looking for the pilotedge plugin.
-            // The assumption is that all plugins are loaded prior to the first
-            // aircraft being loaded when x-plane initially starts up.
             gPlaneLoaded = true;
             LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
             break;
@@ -293,13 +292,12 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inP
         case XPLM_MSG_AIRPLANE_COUNT_CHANGED:
             LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
             break;
-        // XXX: system state and procedure, what's difference between an unloaded and crashed plane?
         case XPLM_MSG_PLANE_CRASHED:
-            if (inparam != PLUGIN_PLANE_ID) { break; }
+            // XXX: system state and procedure, what's difference between
+            // an unloaded and crashed plane?
             LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
             break;
         case XPLM_MSG_PLANE_UNLOADED:
-            if (inparam != PLUGIN_PLANE_ID || !gPlaneLoaded) { break; }
             gPlaneLoaded = false;
             LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
@@ -327,8 +325,13 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     static char str2[100];
     static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
 
+    if (inWindowID != gCommWindow)
+        return;
+
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
+    // printf("CommViewer, gCommWindow: %p, inWindowID: %p, left:%d, right:%d, top:%d, bottom:%d\n",
+    //     gCommWindow, inWindowID, left, right, top, bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
     if (!gPilotEdgePlugin) {
@@ -428,7 +431,8 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags,
                        char inVirtualKey, void* inRefcon, int losingFocus)
 {
-    // nothing to do here
+    if (inWindowID != gCommWindow)
+        return;
 }
 
 /*
@@ -445,6 +449,9 @@ int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus i
     static int com_changed = COMMS_UNCHANGED;
     static int MouseDownX;
     static int MouseDownY;
+
+    if (inWindowID != gCommWindow)
+        return IGNORED_EVENT;
 
     switch (inMouse) {
     case xplm_MouseDown:
