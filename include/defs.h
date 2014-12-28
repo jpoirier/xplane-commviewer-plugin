@@ -5,6 +5,9 @@
 #ifndef DEFS_H
 #define DEFS_H
 
+#define DO_PRAGMA(x) _Pragma (#x)
+#define TODO(x) DO_PRAGMA(message ("TODO - " #x))
+
 #ifdef NDEBUG
  #ifndef _STATIC_ASSERT_
   #define static_assert(e) \

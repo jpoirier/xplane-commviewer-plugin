@@ -48,7 +48,18 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
                                XPLMMouseStatus inMouse,
                                void* inRefcon);
 
-static char* version = "v1.5.2"
+// To define, pass -DVERSION=vX.Y.X when building 
+#ifndef VERSION
+#define VERSION "vX.Y.Z" 
+#endif
+
+// sigh, two levels of macros are needed to stringify
+//  the result  of expansion of a macro argument
+#define DESC() STR(VERSION)
+#define STR(v) "CommViewer " #v  " " __DATE__ " (jdpoirier@gmail.com)"
+
+#pragma message (DESC())
+
 
 #ifdef TOGGLE_TEST_FEATURE
 static XPLMHotKeyID gHotKey = NULL;
@@ -111,8 +122,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
     LPRINTF("CommViewer Plugin: XPluginStart\n");
     strcpy(outName, "CommViewer");
     strcpy(outSig , "jdp.comm.viewer");
-    // strcpy(outDesc, "CommViewer Plugin.");
-    sprintf(outDesc, "CommViewer %s %s (jdpoirier@gmail.com)", version, __DATE__);
+    strcpy(outDesc, DESC());
+
     // sim/cockpit/switches/audio_panel_out
 
     // sim/cockpit2/radios/actuators/audio_com_selection

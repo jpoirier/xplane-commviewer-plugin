@@ -2,6 +2,10 @@
 CXX=g++
 WINDLLMAIN=
 
+# this assumes we have the proper tag
+# if created via the github website then do $ git fetch --tags
+GIT_VER=$(shell git describe --abbrev=0 --tags)
+
 HOSTOS=$(shell uname | tr A-Z a-z)
 ifeq ($(HOSTOS),darwin)
  # -arch i386 -arch x86_64
@@ -10,19 +14,19 @@ ifeq ($(HOSTOS),darwin)
  LIBS=-framework IOKit -framework CoreFoundation -framework OpenGL
  LNFLAGS=-arch x86_64 -dynamiclib -flat_namespace -undefined warning
  # -DTOGGLE_TEST_FEATURE
- CFLAGS=-arch x86_64 -Wall -O3 -D_APPLE_ -DAPL=1 -DIBM=0 -DLIN=0
+ CFLAGS=-arch x86_64 -Wall -O3 -D_APPLE_ -DAPL=1 -DIBM=0 -DLIN=0 -DVERSION=$(GIT_VER)
 else
  ifeq ($(HOSTOS),linux)
   FILE_NAME=lin.xpl
   LIBS=
   # -m32 -m64
   LNFLAGS=-m64 -shared -rdynamic -nodefaultlibs -undefined_warning
-  CFLAGS=-m64 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
+  CFLAGS=-m64 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC -DVERSION=$(GIT_VER)
  else # windows
   FILE_NAME=win.xpl
   LIBS=-lXPLM
   LNFLAGS=-m32 -Wl,-O1 -shared -L. -L./SDK/Libraries/Win/
-  CFLAGS=-m32 -DAPL=0 -DIBM=1 -DLIN=0 -Wall -fpermissive
+  CFLAGS=-m32 -DAPL=0 -DIBM=1 -DLIN=0 -Wall -fpermissive -DVERSION=$(GIT_VER)
   WINDLLMAIN=commviewer_win.o
  endif
 endif
