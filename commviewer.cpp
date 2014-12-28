@@ -48,6 +48,8 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
                                XPLMMouseStatus inMouse,
                                void* inRefcon);
 
+static char* version = "v1.5.2"
+
 #ifdef TOGGLE_TEST_FEATURE
 static XPLMHotKeyID gHotKey = NULL;
 static void HotKeyCallback(void* inRefcon);
@@ -109,8 +111,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
     LPRINTF("CommViewer Plugin: XPluginStart\n");
     strcpy(outName, "CommViewer");
     strcpy(outSig , "jdp.comm.viewer");
-    strcpy(outDesc, "CommViewer Plugin.");
-
+    // strcpy(outDesc, "CommViewer Plugin.");
+    sprintf(outDesc, "CommViewer %s %s (jdpoirier@gmail.com)", version, __DATE__);
     // sim/cockpit/switches/audio_panel_out
 
     // sim/cockpit2/radios/actuators/audio_com_selection
