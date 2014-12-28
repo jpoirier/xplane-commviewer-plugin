@@ -68,7 +68,8 @@ Run make from a shell window then move the win.xpl plugin to X-Plane 10/Resource
 
 
 #### VERSIONS
-- 1.5.0 added a pilotedge plugin registration check with proper ref assignment  
+- 1.5.1 window callbacks sanity check the incoming window id
+- 1.5.0 added a pilotedge plugin registration check with proper ref assignment
 - 1.4.3 add make file and osx binaries
 - 1.4.2 bug fix, correct typecast sizes and types
 - 1.4.1 added PilotEdge connection and TX/RX status
