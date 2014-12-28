@@ -54,7 +54,7 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
 #endif
 
 // sigh, two levels of macros are needed to stringify
-//  the result  of expansion of a macro argument
+// the result  of expansion of a macro argument
 #define DESC() STR(VERSION)
 #define STR(v) "CommViewer " #v  " " __DATE__ " (jdpoirier@gmail.com)"
 
@@ -114,7 +114,6 @@ XPLMDataRef artificial_stability_roll_on_dataref;
 XPLMDataRef panel_visible_win_t_dataref;
 
 /*
- *
  *
  */
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
@@ -190,7 +189,6 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 #ifdef TOGGLE_TEST_FEATURE
 /*
  *
- *
  */
 void HotKeyCallback(void* inRefcon)
 {
@@ -205,7 +203,6 @@ void HotKeyCallback(void* inRefcon)
 #endif
 
 /*
- *
  *
  */
 float FlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop,
@@ -222,7 +219,6 @@ float FlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceL
 }
 
 /*
- *
  *
  */
 int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon)
@@ -322,7 +318,6 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inP
 }
 
 /*
- *
  *
  */
 void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
@@ -438,7 +433,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 }
 
 /*
- *
  *
  */
 void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags,
