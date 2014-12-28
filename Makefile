@@ -29,7 +29,7 @@ endif
 
 # To set user/compiler debug mode (use DPRINTF for stdio): -DDEBUG
 # To dynamically check for USB connected saitek panels: -DDO_USBPANEL_CHECK
-DEFS=-DXPLM200 -DLOGPRINTF
+DEFS=-DXPLM200 -DXPLM210 -DLOGPRINTF
 
 INCLUDE+=-I.
 
