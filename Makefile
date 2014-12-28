@@ -7,15 +7,15 @@ ifeq ($(HOSTOS),darwin)
  # -arch i386 -arch x86_64
  FILE_NAME=mac.xpl
  INCLUDE=-I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.9.sdk/System/Library/Frameworks/OpenGL.framework/Headers
- LIBS=-framework IOKit -framework CoreFoundation -framework OpenGL -l png
- LNFLAGS=-arch x86_64 -dynamiclib -flat_namespace -undefined warning -L.
+ LIBS=-framework IOKit -framework CoreFoundation -framework OpenGL
+ LNFLAGS=-arch x86_64 -dynamiclib -flat_namespace -undefined warning
  # -DTOGGLE_TEST_FEATURE
  CFLAGS=-arch x86_64 -Wall -O3 -D_APPLE_ -DAPL=1 -DIBM=0 -DLIN=0
 else
  ifeq ($(HOSTOS),linux)
   FILE_NAME=lin.xpl
   LIBS=
-  # -m64
+  # -m32 -m64
   LNFLAGS=-m64 -shared -rdynamic -nodefaultlibs -undefined_warning
   CFLAGS=-m64 -Wall -O3 -DAPL=0 -DIBM=0 -DLIN=1 -fvisibility=hidden -fPIC
  else # windows
@@ -29,7 +29,7 @@ endif
 
 # To set user/compiler debug mode (use DPRINTF for stdio): -DDEBUG
 # To dynamically check for USB connected saitek panels: -DDO_USBPANEL_CHECK
-DEFS=-DXPLM200 -DLOGPRINTF
+DEFS=-DXPLM200 -DXPLM210 -DLOGPRINTF
 
 INCLUDE+=-I.
 

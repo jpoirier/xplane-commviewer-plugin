@@ -49,14 +49,17 @@ static int HandleMouseCallback(XPLMWindowID inWindowID,
                                XPLMMouseStatus inMouse,
                                void* inRefcon);
 
+#ifdef TOGGLE_TEST_FEATURE
+static XPLMHotKeyID gHotKey = NULL;
 static void HotKeyCallback(void* inRefcon);
+#endif
 
 static XPLMWindowID gCommWindow = NULL;
 static bool gPluginEnabled = false;
 static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
 static bool gPTT_On = false;
-static XPLMHotKeyID gHotKey = NULL;
+static bool gPilotEdgePlugin = false;
 
 #define WINDOW_WIDTH (290)
 #define WINDOW_HEIGHT (60)
@@ -78,13 +81,15 @@ enum {
 // Command Refs
 #define sCONTACT_ATC   "sim/operation/contact_atc"
 
+#define PILOTEDGE_SIG "com.pilotedge.plugin.xplane"
+
 XPLMDataRef avionics_power_on_dataref;
 XPLMDataRef audio_selection_com1_dataref;
 XPLMDataRef audio_selection_com2_dataref;
 
-XPLMDataRef pilotedge_rx_status_dataref;
-XPLMDataRef pilotedge_tx_status_dataref;
-XPLMDataRef pilotedge_connected_dataref;
+XPLMDataRef pilotedge_rx_status_dataref = NULL;
+XPLMDataRef pilotedge_tx_status_dataref = NULL;
+XPLMDataRef pilotedge_connected_dataref = NULL;
 
 XPLMDataRef radio_volume_ratio_dataref;
 
@@ -100,9 +105,9 @@ XPLMDataRef panel_visible_win_t_dataref;
  *
  *
  */
-PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
-
-    LPRINTF("CommView Plugin: XPluginStart\n");
+PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
+{
+    LPRINTF("CommViewer Plugin: XPluginStart\n");
     strcpy(outName, "CommViewer");
     strcpy(outSig , "jdp.comm.viewer");
     strcpy(outDesc, "CommViewer Plugin.");
@@ -116,7 +121,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     // sim/cockpit2/radios/actuators/com2_power int y   boolean Com radio 2 off or on, 0 or 1.
 
     //avionics_power_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/avionics_power_on");
-    //LPRINTF("CommView Plugin: data/command refs initialized\n");
+    //LPRINTF("CommViewer Plugin: data/command refs initialized\n");
 
     audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
     audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
@@ -154,6 +159,9 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
                                    HandleMouseCallback,
                                    (void*)COMMVIEWER_WINDOW);    // Refcon
 
+    // printf("CommViewer, left:%d, right:%d, top:%d, bottom:%d\n",
+    //     gCommWinPosX, gCommWinPosX+WINDOW_WIDTH, gCommWinPosY, gCommWinPosY-WINDOW_HEIGHT);
+
 #ifdef TOGGLE_TEST_FEATURE
     //gHotKey = XPLMRegisterHotKey(XPLM_VK_F3,
     //                             xplm_DownFlag,
@@ -162,11 +170,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
     //                             NULL);
 #endif
 
-    pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
-    pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
-    pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
-
-    LPRINTF("CommView Plugin: startup completed\n");
+    LPRINTF("CommViewer Plugin: startup completed\n");
 
     return PROCESSED_EVENT;
 }
@@ -176,7 +180,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc) {
  *
  *
  */
-void HotKeyCallback(void* inRefcon) {
+void HotKeyCallback(void* inRefcon)
+{
     static bool isSaved = false;
 
     if (isSaved) {
@@ -191,11 +196,9 @@ void HotKeyCallback(void* inRefcon) {
  *
  *
  */
-float FlightLoopCallback(float inElapsedSinceLastCall,
-                         float inElapsedTimeSinceLastFlightLoop,
-                         int inCounter,
-                         void* inRefcon) {
-
+float FlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop,
+                         int inCounter, void* inRefcon)
+{
 //   if ((gFlCbCnt % PANEL_CHECK_INTERVAL) == 0) {
 //   }
 
@@ -210,10 +213,8 @@ float FlightLoopCallback(float inElapsedSinceLastCall,
  *
  *
  */
-int CommandHandler(XPLMCommandRef inCommand,
-                   XPLMCommandPhase inPhase,
-                   void* inRefcon) {
-
+int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon)
+{
 //    if ((gFlCbCnt % PANEL_CHECK_INTERVAL) == 0) {
 //    }
 //    if (!gPluginEnabled) {
@@ -244,29 +245,29 @@ int CommandHandler(XPLMCommandRef inCommand,
 /*
  *
  */
-PLUGIN_API void XPluginStop(void) {
-
+PLUGIN_API void XPluginStop(void)
+{
     gPluginEnabled = false;
     //XPLMUnregisterFlightLoopCallback(FlightLoopCallback, NULL);
-    LPRINTF("CommView Plugin: XPluginStop\n");
+    LPRINTF("CommViewer Plugin: XPluginStop\n");
 }
 
 /*
  *
  */
-PLUGIN_API void XPluginDisable(void) {
-
+PLUGIN_API void XPluginDisable(void)
+{
     gPluginEnabled = false;
-    LPRINTF("CommView Plugin: XPluginDisable\n");
+    LPRINTF("CommViewer Plugin: XPluginDisable\n");
 }
 
 /*
  *
  */
-PLUGIN_API int XPluginEnable(void) {
-
+PLUGIN_API int XPluginEnable(void)
+{
     gPluginEnabled = true;
-    LPRINTF("CommView Plugin: XPluginEnable\n");
+    LPRINTF("CommViewer Plugin: XPluginEnable\n");
 
     return PROCESSED_EVENT;
 }
@@ -274,34 +275,32 @@ PLUGIN_API int XPluginEnable(void) {
 /*
  *
  */
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom,
-                                      long inMsg,
-                                      void* inParam) {
-
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inParam)
+{
     if (inFrom == XPLM_PLUGIN_XPLANE) {
-        size_t inparam = reinterpret_cast<size_t>(inParam);
+        // size_t inparam = reinterpret_cast<size_t>(inParam);
         switch (inMsg) {
         case XPLM_MSG_PLANE_LOADED:
-            if (inparam != PLUGIN_PLANE_ID || gPlaneLoaded) { break; }
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
+            gPlaneLoaded = true;
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
             break;
         case XPLM_MSG_AIRPORT_LOADED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
             break;
         case XPLM_MSG_SCENERY_LOADED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
             break;
         case XPLM_MSG_AIRPLANE_COUNT_CHANGED:
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
             break;
-        // XXX: system state and procedure, what's difference between an unloaded and crashed plane?
         case XPLM_MSG_PLANE_CRASHED:
-            if (inparam != PLUGIN_PLANE_ID) { break; }
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
+            // XXX: system state and procedure, what's difference between
+            // an unloaded and crashed plane?
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
             break;
         case XPLM_MSG_PLANE_UNLOADED:
-            if (inparam != PLUGIN_PLANE_ID) { break; }
-            LPRINTF("CommView Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
+            gPlaneLoaded = false;
+            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
         default:
             // unknown, anything to do?
@@ -314,8 +313,8 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom,
  *
  *
  */
-void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
-
+void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
+{
     int left;
     int top;
     int right;
@@ -327,9 +326,23 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
     static char str2[100];
     static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
 
+    if (inWindowID != gCommWindow)
+        return;
+
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
+    // printf("CommViewer, gCommWindow: %p, inWindowID: %p, left:%d, right:%d, top:%d, bottom:%d\n",
+    //     gCommWindow, inWindowID, left, right, top, bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
+
+    if (!gPilotEdgePlugin) {
+        if ((XPLMFindPluginBySignature(PILOTEDGE_SIG)) != XPLM_NO_PLUGIN_ID) {
+            gPilotEdgePlugin = true;
+            pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
+            pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
+            pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
+        }
+    }
 
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
@@ -346,8 +359,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
                        NULL,
                        xplmFont_Basic);
 #else
-        // The pilotedge plugin isn't loaded when its data refs are null,
-        // which isn't a problem; we handle all scenarios...
         rx_status = (pilotedge_rx_status_dataref ? XPLMGetDatai(pilotedge_rx_status_dataref) : false) ? 1 : 0;
         tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
         connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
@@ -418,14 +429,11 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon) {
  *
  *
  */
-void HandleKeyCallback(XPLMWindowID inWindowID,
-                       char inKey,
-                       XPLMKeyFlags inFlags,
-                       char inVirtualKey,
-                       void* inRefcon,
-                       int losingFocus) {
-
-    // nothing to do here
+void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags,
+                       char inVirtualKey, void* inRefcon, int losingFocus)
+{
+    if (inWindowID != gCommWindow)
+        return;
 }
 
 /*
@@ -437,15 +445,14 @@ void HandleKeyCallback(XPLMWindowID inWindowID,
  #define COM2_CHANGED       (2)
  #define COMM_UNSELECTED    (0)
  #define COMM_SELECTED      (1)
-int HandleMouseCallback(XPLMWindowID inWindowID,
-                        int x,
-                        int y,
-                        XPLMMouseStatus inMouse,
-                        void* inRefcon) {
-
+int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void* inRefcon)
+{
     static int com_changed = COMMS_UNCHANGED;
     static int MouseDownX;
     static int MouseDownY;
+
+    if (inWindowID != gCommWindow)
+        return IGNORED_EVENT;
 
     switch (inMouse) {
     case xplm_MouseDown:
