@@ -10,9 +10,18 @@ set XPLM_LIB="XPLM.lib"
 
 :: this assumes we have the proper tag
 :: if created via the github website then do $ git fetch --tags
-FOR /F %%I IN ('git describe --abbrev=0 --tags') DO SET GIT_VER=%%I
+:: this doesn't seem to work: git describe --abbrev=0 --tags
+set GIT_VER="vX.Y.Z"
+for /f "delims=" %%i in ('git describe --tags') do @set GIT_VER=%%i
 
-echo ---------- Building version CommViewer %GIT_VER% ----------
+echo -
+echo -
+echo ----------------------------------------------------
+echo Building CommViewer %GIT_VER%
+echo ARCH=%ARCH% XPLM_LIB=%XPLM_LIB% 
+echo ----------------------------------------------------
+echo -
+echo -
 
 goto STARTCOMPILING
 :: Visual Studio 2012
