@@ -1,6 +1,7 @@
 #### CommViewer
 Draws a small, mouse moveable/clickable, text box in the upper left hand corner
-of the simulator screen. The output shows PTT (Push-To-Talk), Com1, and Com2 status.
+of the simulator screen. The output shows PilotEdge, PTT (Push-To-Talk), Com1,
+and Com2 status.
 
 When the output box is clicked on, the plugin will select an unselected Com
 or unselect a Com previously selected via mouse click. Typically, this is useful
@@ -28,6 +29,7 @@ PTT: OFF   COM1: 1   COM2: 1
 ```
 
 ![Alt text](./images/CommViewer.png "X-Plane screenshot")
+
 
 #### Windows Build
 Plugin compiled using MSVC++ 2012 Express.
