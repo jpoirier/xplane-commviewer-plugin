@@ -1,7 +1,7 @@
 #### CommViewer
 Draws a small, mouse moveable/clickable, text box in the upper left hand corner
 of the simulator screen. The output shows PilotEdge Connection, PTT (Push-To-Talk),
-Com1, and Com2 status.
+TX/RX, Com1, and Com2 status.
 
 When the output box is clicked on, the plugin will select an unselected Com
 or unselect a Com previously selected via mouse click. Typically, this is useful
