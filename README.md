@@ -27,13 +27,15 @@ PTT: ON    COM1: 1   COM2: 0
 PTT: OFF   COM1: 1   COM2: 1
 ```
 
+![Alt text](./images/CommViewer.jpg "X-Plane screenshot")
+
 #### Windows Build
 Plugin compiled using MSVC++ 2012 Express.
 
-Open a MSVC++ tool shell specific to the desired target (32/64 bit) 
+Open a MSVC++ tool shell specific to the desired target (32/64 bit)
 and "cd" to the directory containing the plugin code then:
 
-- to build a 64-bit binary: > make.msvc.bat 
+- to build a 64-bit binary: > make.msvc.bat
 - to build a 32-bit binary: > make.msvc.bat 386
 
 Move the win.xpl plugin to your X-Plane 10/Resources/plugins folder.
