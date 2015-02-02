@@ -14,9 +14,12 @@
  //#include <GL/gl.h>
 #endif
 
+#include <string>
+#include <atomic>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <sstream>
 
 #include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
 #include "./SDK/CHeaders/XPLM/XPLMProcessing.h"
@@ -307,6 +310,11 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
  */
 void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 {
+    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
+
+    if (inWindowID != gCommWindow)
+        return;
+
     int left;
     int top;
     int right;
@@ -314,12 +322,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     int rx_status;
     int tx_status;
     char* connected;
-    static char str1[100];
-    static char str2[100];
-    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
-
-    if (inWindowID != gCommWindow)
-        return;
 
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
@@ -336,6 +338,8 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
         }
     }
 
+    stringstream str1;
+    stringstream str2;
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
 #if 0
@@ -355,28 +359,36 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
         tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
         connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
 
-        sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
-                connected,
-                tx_status,
-                rx_status);
+        str1 << "[PilotEdge] Connected: " << connected << " \t\t\tTX: " <<
+               tx_status << "\t\t\tRX: " << rx_status << '\n';
+        // sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
+        //         connected,
+        //         tx_status,
+        //         rx_status);
 
-        sprintf(str2,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-                (char*)(gPTT_On.load() ? "PTT: ON " : "PTT: OFF"),
-                XPLMGetDatai(audio_selection_com1_dataref),
-                XPLMGetDatai(audio_selection_com2_dataref));
+        str2 << string(gPTT_On.load() ? "PTT: ON " : "PTT: OFF") <<
+               "\t\t\tCOM1: " <<
+               XPLMGetDatai(audio_selection_com1_dataref) <<
+               "\t\t\tCOM2: " <<
+               XPLMGetDatai(audio_selection_com2_dataref);
+
+        // sprintf(str2, "%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+        //         (char*)(gPTT_On.load() ? "PTT: ON " : "PTT: OFF"),
+        //         XPLMGetDatai(audio_selection_com1_dataref),
+        //         XPLMGetDatai(audio_selection_com2_dataref));
 
         // text to window, NULL indicates no word wrap
         XPLMDrawString(commviewer_color,
                        left+4,
                        top-20,
-                       str1,
+                       (char*)str1.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 
         XPLMDrawString(commviewer_color,
                        left+4,
                        top-40,
-                       str2,
+                       (char*)str2.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 #endif
