@@ -70,10 +70,11 @@ static atomic<bool> gPluginEnabled(false);
 static const float FL_CB_INTERVAL = -1.0;
 static atomic<bool> gPTT_On(false);
 static atomic<bool> gPilotEdgePlugin(false);
-static atomic<string> gNnumber("");
+static atomic<std::string> gNnumber("");
+static atomic<std::string> gAircraftType("");
 
-#define WINDOW_WIDTH (320)
-#define WINDOW_HEIGHT (60)
+#define WINDOW_WIDTH (235)
+#define WINDOW_HEIGHT (40)
 static int gCommWinPosX;
 static int gCommWinPosY;
 static int gLastMouseX;
@@ -310,9 +311,13 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
 /*
  *
  */
+#define CONN_YES "YES"
+#define CONN_NO  "NO "
 void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 {
-    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
+    // RGB White 1.0, 1.0, 1.0, Green
+    static float commviewer_color[] = {0.0, 1.0, 0.0};
+    static bool is_connected = false;
 
     if (inWindowID != gCommWindow)
         return;
@@ -323,7 +328,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     int bottom;
     int rx_status;
     int tx_status;
-    char* connected;
+    string conn_msg = "";
 
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
@@ -337,30 +342,12 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
             pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
             pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
             pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
-
-            // get the n number from the inin file
-            ifstream infile;
-            infile.open("./Resources/plugins/PilotEdge/VSPro Resources/VSProConnect.ini");
-            if (infile.is_open()) {
-                string sLine = "";
-                while (!infile.eof()) {
-                    getline(infile, sLine);
-                    if (sLine.length() > 0 ) {
-                        if (sLine.substr(0, 1) == "N" || sLine.substr(0, 1) == "n") {
-                            gNnumber.store(" ("+sLine+")");
-                        }
-                    }
-                } // while
-                infile.close();
-            }
-            // register a pe disconnect command handler
-        } else if (gNnumber.length() != 0) {
-            gNnumber.store("");
         }
     }
 
     stringstream str1;
     stringstream str2;
+    stringstream str3;
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
 #if 0
@@ -378,38 +365,63 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 #else
         rx_status = (pilotedge_rx_status_dataref ? XPLMGetDatai(pilotedge_rx_status_dataref) : false) ? 1 : 0;
         tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
-        connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
+        conn_msg = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? CONN_YES : CONN_NO;
 
-        str1 << "PilotEdge Connected " << gNnumber.load() << ": " << connected
-             << " \t\t\tTX: " << tx_status << "\t\t\tRX: " << rx_status << '\n';
-        // sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
-        //         connected,
-        //         tx_status,
-        //         rx_status);
+        if (!is_connected && conn_msg == CONN_YES) {
+            is_connected = true;
+            ifstream infile;
+            infile.open("./Resources/plugins/PilotEdge/VSPro Resources/VSProConnect.ini");
+            if (infile.is_open()) {
+                int lines_read = 0;
+                string sLine = "";
+                while (infile) {
+                    getline(infile, sLine);
+                    lines_read++;
+                    if (lines_read == 3) {
+                        if (sLine != "none")
+                            gNnumber.store(" "+sLine);
+                    } else if (lines_read == 4) {
+                        if (sLine != "none")
+                            gAircraftType.store(" "+sLine);
+                        break;
+                    }
+                } // while
+                infile.close();
+            }
+        } else if (is_connected && conn_msg == CONN_NO) {
+            is_connected = false;
+            gNnumber.store("");
+            gAircraftType.store("");
+        }
 
-        str2 << string(gPTT_On.load() ? "PTT: ON " : "PTT: OFF") <<
-               "\t\t\tCOM1: " <<
-               XPLMGetDatai(audio_selection_com1_dataref) <<
-               "\t\t\tCOM2: " <<
-               XPLMGetDatai(audio_selection_com2_dataref);
+        str1 << "PilotEdge Connected" << gAircraftType.load() + gNnumber.load() << ": "
+             << conn_msg << '\n';
 
-        // sprintf(str2, "%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-        //         (char*)(gPTT_On.load() ? "PTT: ON " : "PTT: OFF"),
-        //         XPLMGetDatai(audio_selection_com1_dataref),
-        //         XPLMGetDatai(audio_selection_com2_dataref));
+        str2 << string(gPTT_On.load() ? "PTT : ON " : "PTT : OFF")
+             << "\t\tTX: " << tx_status << "\t\t\tRX: " << rx_status << '\n';
+
+        str3 << "COM1: " << XPLMGetDatai(audio_selection_com1_dataref)
+             << "\t\tCOM2: " << XPLMGetDatai(audio_selection_com2_dataref);
 
         // text to window, NULL indicates no word wrap
         XPLMDrawString(commviewer_color,
                        left+4,
-                       top-20,
+                       top-10,
                        (char*)str1.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 
         XPLMDrawString(commviewer_color,
                        left+4,
-                       top-40,
+                       top-23,
                        (char*)str2.str().c_str(),
+                       NULL,
+                       xplmFont_Basic);
+
+        XPLMDrawString(commviewer_color,
+                       left+4,
+                       top-35,
+                       (char*)str3.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 #endif
