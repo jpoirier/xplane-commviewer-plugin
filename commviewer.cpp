@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <fstream>
 #include <sstream>
 
 #include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
@@ -69,8 +70,9 @@ static atomic<bool> gPluginEnabled(false);
 static const float FL_CB_INTERVAL = -1.0;
 static atomic<bool> gPTT_On(false);
 static atomic<bool> gPilotEdgePlugin(false);
+static atomic<string> gNnumber("");
 
-#define WINDOW_WIDTH (290)
+#define WINDOW_WIDTH (320)
 #define WINDOW_HEIGHT (60)
 static int gCommWinPosX;
 static int gCommWinPosY;
@@ -335,6 +337,23 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
             pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
             pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
             pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
+
+            // get the n number from the inin file
+            ifstream infile;
+            infile.open("./Resources/plugins/PilotEdge/VSPro Resources/VSProConnect.ini");
+            if (infile.is_open()) {
+                string sLine = "";
+                while (!infile.eof()) {
+                    getline(infile, sLine);
+                    if (sLine.length() > 0 ) {
+                        if (sLine.substr(0, 1) == "N" || sLine.substr(0, 1) == "n") {
+                            gNnumber.store(" ("+sLine+")");
+                        }
+                    }
+                } // while
+                infile.close();
+            }
+            // register a pe disconnect command handler
         }
     }
 
@@ -359,8 +378,8 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
         tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
         connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
 
-        str1 << "[PilotEdge] Connected: " << connected << " \t\t\tTX: " <<
-               tx_status << "\t\t\tRX: " << rx_status << '\n';
+        str1 << "PilotEdge Connected " << gNnumber.load() << ": " << connected
+             << " \t\t\tTX: " << tx_status << "\t\t\tRX: " << rx_status << '\n';
         // sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
         //         connected,
         //         tx_status,
