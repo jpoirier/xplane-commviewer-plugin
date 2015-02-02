@@ -14,9 +14,12 @@
  //#include <GL/gl.h>
 #endif
 
+#include <string>
+#include <atomic>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <sstream>
 
 #include "./SDK/CHeaders/XPLM/XPLMPlugin.h"
 #include "./SDK/CHeaders/XPLM/XPLMProcessing.h"
@@ -28,30 +31,21 @@
 #include "./include/defs.h"
 #include "./include/commviewer.h"
 
-static int CommandHandler(XPLMCommandRef inCommand,
-                          XPLMCommandPhase inPhase,
+using namespace std;
+
+static int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
                           void* inRefcon);
-
-static void DrawWindowCallback(XPLMWindowID inWindowID,
-                               void* inRefcon);
-
-static void HandleKeyCallback(XPLMWindowID inWindowID,
-                              char inKey,
-                              XPLMKeyFlags inFlags,
-                              char inVirtualKey,
-                              void* inRefcon,
-                              int losingFocus);
-
-static int HandleMouseCallback(XPLMWindowID inWindowID,
-                               int x,
-                               int y,
-                               XPLMMouseStatus inMouse,
-                               void* inRefcon);
+static void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon);
+static void HandleKeyCallback(XPLMWindowID inWindowID, char inKey,
+                              XPLMKeyFlags inFlags, char inVirtualKey,
+                              void* inRefcon, int losingFocus);
+static int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y,
+                               XPLMMouseStatus inMouse, void* inRefcon);
 
 
-// To define, pass -DVERSION=vX.Y.X when building 
+// To define, pass -DVERSION=vX.Y.X when building
 #ifndef VERSION
-#define VERSION "vUNKNOWN" 
+#define VERSION "vUNKNOWN"
 #endif
 
 // sigh, two levels of macros are needed to stringify
@@ -70,11 +64,11 @@ static void HotKeyCallback(void* inRefcon);
 #endif
 
 static XPLMWindowID gCommWindow = NULL;
-static bool gPluginEnabled = false;
-static int gPlaneLoaded = 0;
+static atomic<bool> gPluginEnabled(false);
+// static int gPlaneLoaded = 0;
 static const float FL_CB_INTERVAL = -1.0;
-static bool gPTT_On = false;
-static bool gPilotEdgePlugin = false;
+static atomic<bool> gPTT_On(false);
+static atomic<bool> gPilotEdgePlugin(false);
 
 #define WINDOW_WIDTH (290)
 #define WINDOW_HEIGHT (60)
@@ -95,7 +89,6 @@ enum {
 
 // Command Refs
 #define sCONTACT_ATC "sim/operation/contact_atc"
-
 #define PILOTEDGE_SIG "com.pilotedge.plugin.xplane"
 
 XPLMDataRef avionics_power_on_dataref;
@@ -185,7 +178,6 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 #endif
 
     LPRINTF("CommViewer Plugin: startup completed\n");
-
     return PROCESSED_EVENT;
 }
 
@@ -197,38 +189,32 @@ void HotKeyCallback(void* inRefcon)
 {
     static bool isSaved = false;
 
-    if (isSaved) {
+    if (isSaved)
         isSaved = false;
-    } else {
+    else
         isSaved = true;
-    }
 }
 #endif
 
 /*
  *
  */
-float FlightLoopCallback(float inElapsedSinceLastCall, float inElapsedTimeSinceLastFlightLoop,
-                         int inCounter, void* inRefcon)
+float FlightLoopCallback(float inElapsedSinceLastCall,
+                         float inElapsedTimeSinceLastFlightLoop, int inCounter,
+                         void* inRefcon)
 {
-//   if ((gFlCbCnt % PANEL_CHECK_INTERVAL) == 0) {
-//   }
-
-    if (!gPluginEnabled) {
-
+    if (!gPluginEnabled.load()) {
     }
-
     return 1.0;
 }
 
 /*
  *
  */
-int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon)
+int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
+                   void* inRefcon)
 {
-//    if ((gFlCbCnt % PANEL_CHECK_INTERVAL) == 0) {
-//    }
-//    if (!gPluginEnabled) {
+//    if (!gPluginEnabled.load()) {
 //        return IGNORED_EVENT;
 //    }
 
@@ -237,10 +223,10 @@ int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inR
         switch (inPhase) {
         case xplm_CommandBegin:
         case xplm_CommandContinue:
-            gPTT_On = true;
+            gPTT_On.store(true);
             break;
         case xplm_CommandEnd:
-            gPTT_On = false;
+            gPTT_On.store(false);
             break;
         default:
             break;
@@ -249,7 +235,6 @@ int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inR
     default:
         break;
     }
-
     return IGNORED_EVENT;
 }
 
@@ -258,7 +243,7 @@ int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inR
  */
 PLUGIN_API void XPluginStop(void)
 {
-    gPluginEnabled = false;
+    gPluginEnabled.store(false);
     //XPLMUnregisterFlightLoopCallback(FlightLoopCallback, NULL);
     LPRINTF("CommViewer Plugin: XPluginStop\n");
 }
@@ -268,7 +253,7 @@ PLUGIN_API void XPluginStop(void)
  */
 PLUGIN_API void XPluginDisable(void)
 {
-    gPluginEnabled = false;
+    gPluginEnabled.store(false);
     LPRINTF("CommViewer Plugin: XPluginDisable\n");
 }
 
@@ -277,41 +262,41 @@ PLUGIN_API void XPluginDisable(void)
  */
 PLUGIN_API int XPluginEnable(void)
 {
-    gPluginEnabled = true;
+    gPluginEnabled.store(true);
     LPRINTF("CommViewer Plugin: XPluginEnable\n");
-
     return PROCESSED_EVENT;
 }
 
 /*
  *
  */
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
+                                      void* inParam)
 {
     if (inFrom == XPLM_PLUGIN_XPLANE) {
         // size_t inparam = reinterpret_cast<size_t>(inParam);
         switch (inMsg) {
         case XPLM_MSG_PLANE_LOADED:
-            gPlaneLoaded = true;
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
+            // gPlaneLoaded = true;
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_LOADED\n");
             break;
         case XPLM_MSG_AIRPORT_LOADED:
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPORT_LOADED\n");
             break;
         case XPLM_MSG_SCENERY_LOADED:
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_SCENERY_LOADED\n");
             break;
         case XPLM_MSG_AIRPLANE_COUNT_CHANGED:
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_AIRPLANE_COUNT_CHANGED\n");
             break;
         case XPLM_MSG_PLANE_CRASHED:
             // XXX: system state and procedure, what's difference between
             // an unloaded and crashed plane?
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_CRASHED\n");
             break;
         case XPLM_MSG_PLANE_UNLOADED:
-            gPlaneLoaded = false;
-            LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
+            // gPlaneLoaded = false;
+            // LPRINTF("CommViewer Plugin: XPluginReceiveMessage XPLM_MSG_PLANE_UNLOADED\n");
             break;
         default:
             // unknown, anything to do?
@@ -325,6 +310,11 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inP
  */
 void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 {
+    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
+
+    if (inWindowID != gCommWindow)
+        return;
+
     int left;
     int top;
     int right;
@@ -332,12 +322,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     int rx_status;
     int tx_status;
     char* connected;
-    static char str1[100];
-    static char str2[100];
-    static float commviewer_color[] = {1.0, 1.0, 1.0};  // RGB White
-
-    if (inWindowID != gCommWindow)
-        return;
 
     // XXX: are inWindowIDs our XPLMCreateWindow return pointers
     XPLMGetWindowGeometry(inWindowID, &left, &top, &right, &bottom);
@@ -345,20 +329,22 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     //     gCommWindow, inWindowID, left, right, top, bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
 
-    if (!gPilotEdgePlugin) {
+    if (!gPilotEdgePlugin.load()) {
         if ((XPLMFindPluginBySignature(PILOTEDGE_SIG)) != XPLM_NO_PLUGIN_ID) {
-            gPilotEdgePlugin = true;
+            gPilotEdgePlugin.store(true);
             pilotedge_rx_status_dataref = XPLMFindDataRef("pilotedge/radio/rx_status");
             pilotedge_tx_status_dataref = XPLMFindDataRef("pilotedge/radio/tx_status");
             pilotedge_connected_dataref = XPLMFindDataRef("pilotedge/status/connected");
         }
     }
 
+    stringstream str1;
+    stringstream str2;
     switch (reinterpret_cast<size_t>(inRefcon)) {
     case COMMVIEWER_WINDOW:
 #if 0
         sprintf(str1,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-                (char*)(gPTT_On ? "PTT: ON" : "PTT: OFF"),
+                (char*)(gPTT_On.load() ? "PTT: ON" : "PTT: OFF"),
                 XPLMGetDatai(audio_selection_com1_dataref),
                 XPLMGetDatai(audio_selection_com2_dataref));
         // text to window, NULL indicates no word wrap
@@ -373,28 +359,36 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
         tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
         connected = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? (char*)"YES" : (char*)"NO ";
 
-        sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
-                connected,
-                tx_status,
-                rx_status);
+        str1 << "[PilotEdge] Connected: " << connected << " \t\t\tTX: " <<
+               tx_status << "\t\t\tRX: " << rx_status << '\n';
+        // sprintf(str1, "[PilotEdge] Connected: %s \t\t\tTX: %d\t\t\tRX: %d",
+        //         connected,
+        //         tx_status,
+        //         rx_status);
 
-        sprintf(str2,"%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
-                (char*)(gPTT_On ? "PTT: ON " : "PTT: OFF"),
-                XPLMGetDatai(audio_selection_com1_dataref),
-                XPLMGetDatai(audio_selection_com2_dataref));
+        str2 << string(gPTT_On.load() ? "PTT: ON " : "PTT: OFF") <<
+               "\t\t\tCOM1: " <<
+               XPLMGetDatai(audio_selection_com1_dataref) <<
+               "\t\t\tCOM2: " <<
+               XPLMGetDatai(audio_selection_com2_dataref);
+
+        // sprintf(str2, "%s\t\t\tCOM1: %d\t\t\tCOM2: %d",
+        //         (char*)(gPTT_On.load() ? "PTT: ON " : "PTT: OFF"),
+        //         XPLMGetDatai(audio_selection_com1_dataref),
+        //         XPLMGetDatai(audio_selection_com2_dataref));
 
         // text to window, NULL indicates no word wrap
         XPLMDrawString(commviewer_color,
                        left+4,
                        top-20,
-                       str1,
+                       (char*)str1.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 
         XPLMDrawString(commviewer_color,
                        left+4,
                        top-40,
-                       str2,
+                       (char*)str2.str().c_str(),
                        NULL,
                        xplmFont_Basic);
 #endif
@@ -514,6 +508,5 @@ int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus i
         }
         break;
     } // switch (inMouse)
-
     return PROCESSED_EVENT;
 }

@@ -32,10 +32,9 @@ PTT: OFF   COM1: 1   COM2: 1
 
 
 #### Windows Build
-Plugin compiled using MSVC++ 2012 Express.
+Requires MS VC++ Studio 2012 or 2013.
 
-Open a MSVC++ tool shell specific to the desired target (32/64 bit)
-and "cd" to the directory containing the plugin code then:
+Open a shell "cd" to the plugin directory then:
 
 - to build a 64-bit binary: > make.msvc.bat
 - to build a 32-bit binary: > make.msvc.bat 386
@@ -61,6 +60,7 @@ Move the *.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
 
 #### VERSIONS
+- 1.5.3
 - 1.5.2 add version, date, and email info to the plugin's info, other optimizations
 - 1.5.1 window callbacks sanity check the incoming window id
 - 1.5.0 added a pilotedge plugin registration check with proper ref assignment
