@@ -354,6 +354,8 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
                 infile.close();
             }
             // register a pe disconnect command handler
+        } else if (gNnumber.length() != 0) {
+            gNnumber.store("");
         }
     }
 
