@@ -47,7 +47,7 @@ Move the *.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
 
 #### VERSIONS
-- 1.5.3 added aircraft type and N number to the output window, idiomatic c++ mods
+- 1.6.0 added aircraft type and N number to the output window, idiomatic c++ mods
 - 1.5.2 add version, date, and email info to the plugin's info, other optimizations
 - 1.5.1 window callbacks sanity check the incoming window id
 - 1.5.0 added a pilotedge plugin registration check with proper ref assignment
