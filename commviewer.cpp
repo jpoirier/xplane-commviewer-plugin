@@ -70,8 +70,13 @@ static atomic<bool> gPluginEnabled(false);
 static const float FL_CB_INTERVAL = -1.0;
 static atomic<bool> gPTT_On(false);
 static atomic<bool> gPilotEdgePlugin(false);
-static atomic<std::string> gNnumber("");
-static atomic<std::string> gAircraftType("");
+#ifdef _APPLE_
+static string gNnumber = "";
+static string gAircraftType = "";
+#else
+static std::atomic<std::string> gNnumber(std::string(""));
+static std::atomic<std::string> gAircraftType(std::string(""));
+#endif
 
 #define WINDOW_WIDTH (235)
 #define WINDOW_HEIGHT (40)
@@ -379,10 +384,18 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
                     lines_read++;
                     if (lines_read == 3) {
                         if (sLine != "none")
-                            gNnumber.store(" "+sLine);
+#ifdef _APPLE_
+                            gNnumber = " " + sLine;
+#else
+                            gNnumber.store(" " + sLine);
+#endif
                     } else if (lines_read == 4) {
                         if (sLine != "none")
-                            gAircraftType.store(" "+sLine);
+#ifdef _APPLE_
+                            gAircraftType = " " + sLine;
+#else
+                            gAircraftType.store(" " + sLine);
+#endif
                         break;
                     }
                 } // while
@@ -390,12 +403,20 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
             }
         } else if (is_connected && conn_msg == CONN_NO) {
             is_connected = false;
+#ifdef _APPLE_
+            gNnumber = "";
+            gAircraftType = "";
+#else
             gNnumber.store("");
             gAircraftType.store("");
+#endif
         }
-
-        str1 << "PilotEdge Connected" << gAircraftType.load() + gNnumber.load() << ": "
-             << conn_msg << '\n';
+#ifdef _APPLE_
+        str1 << "PilotEdge Connected" << gAircraftType << gNnumber
+#else
+        str1 << "PilotEdge Connected" << gAircraftType.load() << gNnumber.load()
+#endif
+             << ": " << conn_msg << '\n';
 
         str2 << string(gPTT_On.load() ? "PTT : ON " : "PTT : OFF")
              << "\t\tTX: " << tx_status << "\t\t\tRX: " << rx_status << '\n';
