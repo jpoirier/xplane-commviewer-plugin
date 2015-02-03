@@ -73,7 +73,8 @@ set CL_FILES="commviewer_win.cpp" /TP "commviewer.cpp"
 set LINK_OPTS=/MACHINE:%ARCH% /OUT:win.xpl /INCREMENTAL:NO /NOLOGO /DLL /NXCOMPAT /DYNAMICBASE /SUBSYSTEM:CONSOLE /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /LIBPATH:"SDK\Libraries\Win" /TLBID:1
 
 :: "XPLM_64.lib" "XPLM.lib"
-set LINK_LIBS=%XPLM_LIB% "user32.lib" "Opengl32.lib" "odbc32.lib" "odbccp32.lib" "kernel32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib"
+set LINK_LIBS=%XPLM_LIB%
+::set LINK_LIBS=%XPLM_LIB% "user32.lib" "Opengl32.lib" "odbc32.lib" "odbccp32.lib" "kernel32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib"
 set LINK_OBJS="commviewer.obj" "commviewer_win.obj"
 
 @ECHO ON
