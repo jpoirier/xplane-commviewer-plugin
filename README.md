@@ -15,29 +15,16 @@ mouse button.
 
 
 #### Example Output (COMx: 0=Unselected, 1=Selected, TX/RX: ON=1, OFF=0):
-```
-[Pilot Edge] Connected: YES     TX: 0   RX: 1
-PTT: OFF   COM1: 1   COM2: 0
-```
-```
-[Pilot Edge] Connected: NO      TX: 0   RX: 0
-PTT: ON    COM1: 1   COM2: 0
-```
-```
-[Pilot Edge] Connected: YES     TX: 1   RX: 0
-PTT: OFF   COM1: 1   COM2: 1
-```
-
-![Alt text](./images/CommViewer.png "X-Plane screenshot")
-
+![Alt text](./images/is_connected.png "Connected from PilotEdge")
+![Alt text](./images/isnot_connected.png "Disconnected from PilotEdge")
 
 #### Windows Build
 Requires MS VC++ Studio 2012 or 2013.
 
-Open a shell "cd" to the plugin directory then:
+Open a shell and "cd" to the plugin directory then:
 
-- to build a 64-bit binary: > make.msvc.bat
-- to build a 32-bit binary: > make.msvc.bat 386
+- 64-bit binary:> make.msvc.bat
+- 32-bit binary:> make.msvc.bat 386
 
 Move the win.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
@@ -60,7 +47,7 @@ Move the *.xpl plugin to your X-Plane 10/Resources/plugins folder.
 
 
 #### VERSIONS
-- 1.5.3
+- 1.5.3 added aircraft type and N number to the output window, idiomatic c++ mods
 - 1.5.2 add version, date, and email info to the plugin's info, other optimizations
 - 1.5.1 window callbacks sanity check the incoming window id
 - 1.5.0 added a pilotedge plugin registration check with proper ref assignment
