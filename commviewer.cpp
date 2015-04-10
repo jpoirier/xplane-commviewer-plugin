@@ -34,14 +34,11 @@
 
 using namespace std;
 
-static int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
-                          void* inRefcon);
+static int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon);
 static void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon);
-static void HandleKeyCallback(XPLMWindowID inWindowID, char inKey,
-                              XPLMKeyFlags inFlags, char inVirtualKey,
+static void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags, char inVirtualKey,
                               void* inRefcon, int losingFocus);
-static int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y,
-                               XPLMMouseStatus inMouse, void* inRefcon);
+static int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void* inRefcon);
 
 
 // To define, pass -DVERSION=vX.Y.X when building
@@ -113,7 +110,7 @@ XPLMDataRef artificial_stability_roll_on_dataref;
 
 XPLMDataRef panel_visible_win_t_dataref;
 
-/*
+/**
  *
  */
 PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
@@ -186,7 +183,7 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
 }
 
 #ifdef TOGGLE_TEST_FEATURE
-/*
+/**
  *
  */
 void HotKeyCallback(void* inRefcon)
@@ -200,7 +197,7 @@ void HotKeyCallback(void* inRefcon)
 }
 #endif
 
-/*
+/**
  *
  */
 float FlightLoopCallback(float inElapsedSinceLastCall,
@@ -212,11 +209,10 @@ float FlightLoopCallback(float inElapsedSinceLastCall,
     return 1.0;
 }
 
-/*
+/**
  *
  */
-int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
-                   void* inRefcon)
+int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon)
 {
 //    if (!gPluginEnabled.load()) {
 //        return IGNORED_EVENT;
@@ -242,7 +238,7 @@ int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
     return IGNORED_EVENT;
 }
 
-/*
+/**
  *
  */
 PLUGIN_API void XPluginStop(void)
@@ -252,7 +248,7 @@ PLUGIN_API void XPluginStop(void)
     LPRINTF("CommViewer Plugin: XPluginStop\n");
 }
 
-/*
+/**
  *
  */
 PLUGIN_API void XPluginDisable(void)
@@ -261,7 +257,7 @@ PLUGIN_API void XPluginDisable(void)
     LPRINTF("CommViewer Plugin: XPluginDisable\n");
 }
 
-/*
+/**
  *
  */
 PLUGIN_API int XPluginEnable(void)
@@ -271,11 +267,10 @@ PLUGIN_API int XPluginEnable(void)
     return PROCESSED_EVENT;
 }
 
-/*
+/**
  *
  */
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
-                                      void* inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inParam)
 {
     if (inFrom == XPLM_PLUGIN_XPLANE) {
         // size_t inparam = reinterpret_cast<size_t>(inParam);
@@ -309,7 +304,7 @@ PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
     } // if (inFrom == XPLM_PLUGIN_XPLANE)
 }
 
-/*
+/**
  *
  */
 #define CONN_YES "YES"
@@ -461,7 +456,7 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
 #endif
 }
 
-/*
+/**
  *
  */
 void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags,
@@ -471,7 +466,7 @@ void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags
         return;
 }
 
-/*
+/**
  *
  *
  */
