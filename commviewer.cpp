@@ -70,13 +70,9 @@ static atomic<bool> gPluginEnabled(false);
 static const float FL_CB_INTERVAL = -1.0;
 static atomic<bool> gPTT_On(false);
 static atomic<bool> gPilotEdgePlugin(false);
-#ifdef _APPLE_
+
 static string gNnumber = "";
 static string gAircraftType = "";
-#else
-static std::atomic<std::string> gNnumber(std::string(""));
-static std::atomic<std::string> gAircraftType(std::string(""));
-#endif
 
 #define WINDOW_WIDTH (235)
 #define WINDOW_HEIGHT (40)
@@ -340,7 +336,6 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
     // printf("CommViewer, gCommWindow: %p, inWindowID: %p, left:%d, right:%d, top:%d, bottom:%d\n",
     //     gCommWindow, inWindowID, left, right, top, bottom);
     XPLMDrawTranslucentDarkBox(left, top, right, bottom);
-
     if (!gPilotEdgePlugin.load()) {
         if ((XPLMFindPluginBySignature(PILOTEDGE_SIG)) != XPLM_NO_PLUGIN_ID) {
             gPilotEdgePlugin.store(true);
@@ -384,18 +379,10 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
                     lines_read++;
                     if (lines_read == 3) {
                         if (sLine != "none")
-#ifdef _APPLE_
                             gNnumber = " " + sLine;
-#else
-                            gNnumber.store(" " + sLine);
-#endif
                     } else if (lines_read == 4) {
                         if (sLine != "none")
-#ifdef _APPLE_
                             gAircraftType = " " + sLine;
-#else
-                            gAircraftType.store(" " + sLine);
-#endif
                         break;
                     }
                 } // while
@@ -403,19 +390,10 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
             }
         } else if (is_connected && conn_msg == CONN_NO) {
             is_connected = false;
-#ifdef _APPLE_
             gNnumber = "";
             gAircraftType = "";
-#else
-            gNnumber.store("");
-            gAircraftType.store("");
-#endif
         }
-#ifdef _APPLE_
         str1 << "PilotEdge Connected" << gAircraftType << gNnumber
-#else
-        str1 << "PilotEdge Connected" << gAircraftType.load() << gNnumber.load()
-#endif
              << ": " << conn_msg << '\n';
 
         str2 << string(gPTT_On.load() ? "PTT : ON " : "PTT : OFF")
