@@ -34,11 +34,13 @@
 
 using namespace std;
 
-static int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon);
+static int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
+    void* inRefcon);
 static void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon);
-static void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags, char inVirtualKey,
-                              void* inRefcon, int losingFocus);
-static int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void* inRefcon);
+static void HandleKeyCallback(XPLMWindowID inWindowID, char inKey,
+    XPLMKeyFlags inFlags, char inVirtualKey, void* inRefcon, int losingFocus);
+static int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y,
+    XPLMMouseStatus inMouse, void* inRefcon);
 
 
 // To define, pass -DVERSION=vX.Y.X when building
@@ -131,14 +133,20 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
     //avionics_power_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/avionics_power_on");
     //LPRINTF("CommViewer Plugin: data/command refs initialized\n");
 
-    audio_selection_com1_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
-    audio_selection_com2_dataref = XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
-    radio_volume_ratio_dataref = XPLMFindDataRef("sim/operation/sound/radio_volume_ratio");  // 0.0 - 1.0
+    audio_selection_com1_dataref =
+        XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com1");
+    audio_selection_com2_dataref =
+        XPLMFindDataRef("sim/cockpit2/radios/actuators/audio_selection_com2");
+    radio_volume_ratio_dataref =
+        XPLMFindDataRef("sim/operation/sound/radio_volume_ratio");  // 0.0 - 1.0
 
 #ifdef TOGGLE_TEST_FEATURE
-    artificial_stability_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
-    artificial_stability_pitch_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_pitch_on");
-    artificial_stability_roll_on_dataref = XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_roll_on");
+    artificial_stability_on_dataref =
+        XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_on");
+    artificial_stability_pitch_on_dataref =
+        XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_pitch_on");
+    artificial_stability_roll_on_dataref =
+        XPLMFindDataRef("sim/cockpit2/switches/artificial_stability_roll_on");
     XPLMSetDatai(artificial_stability_on_dataref, 1);
     XPLMSetDatai(artificial_stability_pitch_on_dataref, 1);
     XPLMSetDatai(artificial_stability_roll_on_dataref, 1);
@@ -152,7 +160,8 @@ PLUGIN_API int XPluginStart(char* outName, char* outSig, char* outDesc)
                                (void*)CMD_CONTACT_ATC);
 
     // XPLMRegisterFlightLoopCallback(FlightLoopCallback, FL_CB_INTERVAL, NULL);
-    panel_visible_win_t_dataref = XPLMFindDataRef("sim/graphics/view/panel_visible_win_t");
+    panel_visible_win_t_dataref =
+        XPLMFindDataRef("sim/graphics/view/panel_visible_win_t");
 
     int top = (int)XPLMGetDataf(panel_visible_win_t_dataref);
     gCommWinPosX = 0;
@@ -212,7 +221,8 @@ float FlightLoopCallback(float inElapsedSinceLastCall,
 /**
  *
  */
-int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase, void* inRefcon)
+int CommandHandler(XPLMCommandRef inCommand, XPLMCommandPhase inPhase,
+    void* inRefcon)
 {
 //    if (!gPluginEnabled.load()) {
 //        return IGNORED_EVENT;
@@ -270,7 +280,8 @@ PLUGIN_API int XPluginEnable(void)
 /**
  *
  */
-PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg, void* inParam)
+PLUGIN_API void XPluginReceiveMessage(XPLMPluginID inFrom, long inMsg,
+    void* inParam)
 {
     if (inFrom == XPLM_PLUGIN_XPLANE) {
         // size_t inparam = reinterpret_cast<size_t>(inParam);
@@ -358,9 +369,12 @@ void DrawWindowCallback(XPLMWindowID inWindowID, void* inRefcon)
                        NULL,
                        xplmFont_Basic);
 #else
-        rx_status = (pilotedge_rx_status_dataref ? XPLMGetDatai(pilotedge_rx_status_dataref) : false) ? 1 : 0;
-        tx_status = (pilotedge_tx_status_dataref ? XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
-        conn_msg = (pilotedge_connected_dataref ? XPLMGetDatai(pilotedge_connected_dataref) : false) ? CONN_YES : CONN_NO;
+        rx_status = (pilotedge_rx_status_dataref ?
+            XPLMGetDatai(pilotedge_rx_status_dataref) : false) ? 1 : 0;
+        tx_status = (pilotedge_tx_status_dataref ?
+            XPLMGetDatai(pilotedge_tx_status_dataref) : false) ? 1 : 0;
+        conn_msg = (pilotedge_connected_dataref ?
+            XPLMGetDatai(pilotedge_connected_dataref) : false) ? CONN_YES : CONN_NO;
 
         if (!is_connected && conn_msg == CONN_YES) {
             is_connected = true;
@@ -475,7 +489,8 @@ void HandleKeyCallback(XPLMWindowID inWindowID, char inKey, XPLMKeyFlags inFlags
  #define COM2_CHANGED       (2)
  #define COMM_UNSELECTED    (0)
  #define COMM_SELECTED      (1)
-int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus inMouse, void* inRefcon)
+int HandleMouseCallback(XPLMWindowID inWindowID, int x, int y,
+    XPLMMouseStatus inMouse, void* inRefcon)
 {
     static int com_changed = COMMS_UNCHANGED;
     static int MouseDownX;
