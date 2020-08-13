@@ -25,6 +25,16 @@ echo ----------------------------------------------------
 echo -
 echo -
 
+:: Visual Studio 2019
+:vc-set-2019
+if not defined VS160COMNTOOLS  goto vc-set-2013
+if not exist "%VS160COMNTOOLS%\..\..\vc\auxiliary\build\vcvarsall.bat" goto vc-set-2013
+echo -
+echo - Visual C++ 2019 found.
+echo -
+call "%VS160COMNTOOLS%\..\..\vc\auxiliary\build\vcvarsall.bat" %vs_toolset%
+goto STARTCOMPILING
+
 :: Visual Studio 2013
 :vc-set-2013
 if not defined VS120COMNTOOLS  goto vc-set-2012
